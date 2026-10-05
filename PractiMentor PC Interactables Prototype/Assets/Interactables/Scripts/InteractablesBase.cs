@@ -1,5 +1,4 @@
 using DG.Tweening;
-using UnityEditor.TerrainTools;
 using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
@@ -7,8 +6,6 @@ using UnityEngine;
 public class InteractablesBase : MonoBehaviour
 {
     private const string highlightProperty = "_HighlightMaster";
-
-    //[SerializeField] private Material baseMaterial;
 
     [SerializeField] private int indexOfMaterial = 0;
     [SerializeField] private float highlightDuration = 0.5f;

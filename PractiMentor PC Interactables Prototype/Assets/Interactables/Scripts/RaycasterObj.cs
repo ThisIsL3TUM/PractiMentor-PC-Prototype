@@ -3,10 +3,10 @@ using DG.Tweening;
 
 public class RaycasterObj : MonoBehaviour
 { 
-    Camera playerCamera;
-    LayerMask layerMask;
+    private Camera playerCamera;
+    private LayerMask layerMask;
     private int layerNumber;
-    InteractablesBase currentInteractable;
+    private InteractablesBase currentInteractable;
 
     //player
     [SerializeField] private GameObject player;
@@ -26,6 +26,18 @@ public class RaycasterObj : MonoBehaviour
     {
         layerMask = LayerMask.GetMask("Interactables");
         layerNumber = LayerMask.NameToLayer("Hold Layer");
+
+        if (player == null)
+            Debug.LogError("Player reference is missing.", this);
+
+        if (holdPosR == null)
+            Debug.LogError("Right-hand hold position is missing.", this);
+
+        if (holdPosL == null)
+            Debug.LogError("Left-hand hold position is missing.", this);
+
+        if (layerNumber == -1)
+            Debug.LogError("The 'Hold Layer' doesn't exist!", this);
     }
 
     private void Start()
@@ -58,6 +70,11 @@ public class RaycasterObj : MonoBehaviour
 
                         break;
                     }
+            }
+
+            if (!hit.transform.CompareTag("Grabbable") && !hit.transform.CompareTag("Clickable") && !(hit.transform.CompareTag("Socket") && heldObj != null))
+            {
+                ClearCurrentInteractable();
             }
 
             if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -100,7 +117,6 @@ public class RaycasterObj : MonoBehaviour
                     if (socket.TryOccupySocket(heldObj, out Transform placementPoint))
                     {
                         PlaceHeldObject(placementPoint);
-                        heldObj = null;
                     }
                     else
                     {
@@ -114,11 +130,7 @@ public class RaycasterObj : MonoBehaviour
         else
         {
 
-            if (currentInteractable != null)
-            {
-                currentInteractable.SetHighlighted(false);
-                currentInteractable = null;
-            }
+            ClearCurrentInteractable();
             
         }
 
@@ -157,5 +169,14 @@ public class RaycasterObj : MonoBehaviour
         heldObj.layer = 0;
         heldObj.transform.DOMove(placementPoint.position, 0.5f).SetEase(Ease.InOutSine);
         heldObj = null;
+    }
+
+    private void ClearCurrentInteractable()
+    {
+        if (currentInteractable == null)
+            return;
+
+        currentInteractable.SetHighlighted(false);
+        currentInteractable = null;
     }
 }
