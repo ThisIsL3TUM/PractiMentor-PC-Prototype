@@ -6,7 +6,7 @@ public class RaycasterObj : MonoBehaviour
     Camera playerCamera;
     LayerMask layerMask;
     private int layerNumber;
-    InteractablesBase interactable;
+    InteractablesBase currentInteractable;
 
     //player
     [SerializeField] private GameObject player;
@@ -45,20 +45,15 @@ public class RaycasterObj : MonoBehaviour
                 case "Clickable":
                 case "Socket" when heldObj != null:
                     {
-                        if (hit.transform.TryGetComponent(out InteractablesBase interactable))
+                        if (hit.transform.TryGetComponent(out InteractablesBase nextInteractable))
                         {
-                            if (this.interactable != interactable)
+                            if (currentInteractable != nextInteractable)
                             {
-                                this.interactable?.OnHoverIn(false);
-                            }
+                                currentInteractable?.SetHighlighted(false);
 
-                            this.interactable = interactable;
-                            interactable.OnHoverIn(true);
-                        }
-                        else
-                        {
-                            this.interactable?.OnHoverIn(false);
-                            this.interactable = default;
+                                currentInteractable = nextInteractable;
+                                currentInteractable.SetHighlighted(true);
+                            }
                         }
 
                         break;
@@ -102,9 +97,10 @@ public class RaycasterObj : MonoBehaviour
                         return;
                     }
 
-                    if (socket.TryOccupySocket())
+                    if (socket.TryOccupySocket(heldObj, out Transform placementPoint))
                     {
-                        PutBackObject(hit.transform.gameObject);
+                        PlaceHeldObject(placementPoint);
+                        heldObj = null;
                     }
                     else
                     {
@@ -115,11 +111,7 @@ public class RaycasterObj : MonoBehaviour
             }
 
         }
-        else
-        {
-            interactable?.OnHoverIn(false);
-            interactable = default;
-        }
+        
 
         if (heldObj != null)
         {
@@ -147,14 +139,14 @@ public class RaycasterObj : MonoBehaviour
         heldObj.transform.rotation = Quaternion.identity; //for obj rotation, need to double check it, sets up the initial rotation of the object 
     }
 
-    void PutBackObject(GameObject objPlaced)
+    void PlaceHeldObject(Transform placementPoint)
     {
         if (heldObj == null)
             return;
 
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(),player.GetComponent<Collider>(),true);
         heldObj.layer = 0;
-        heldObj.transform.DOMove(objPlaced.transform.position, 0.5f).SetEase(Ease.InOutSine);
+        heldObj.transform.DOMove(placementPoint.position, 0.5f).SetEase(Ease.InOutSine);
         heldObj = null;
     }
 }
