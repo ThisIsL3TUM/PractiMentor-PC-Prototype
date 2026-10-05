@@ -1,5 +1,6 @@
 using UnityEngine;
 
+//THIS WHOLE SCRIPT NEEDS TO BE REWORKED TO ACT AS INTENDED!!!
 public class CursorManager : MonoBehaviour
 {
     public static CursorManager Instance { get; private set; }

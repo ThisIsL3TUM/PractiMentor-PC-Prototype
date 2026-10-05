@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class InteractablesBase : MonoBehaviour
 {
+    //checks name of variable from shader that results in the transition
     private const string highlightProperty = "_HighlightMaster";
 
+    //adjustable valuables for material index and duration
     [SerializeField] private int indexOfMaterial = 0;
     [SerializeField] private float highlightDuration = 0.5f;
 
@@ -18,7 +20,8 @@ public class InteractablesBase : MonoBehaviour
     private void Awake()
     {
         interactableRenderer = GetComponent<Renderer>();
-
+        
+        //checks if elements are set
         if (indexOfMaterial < 0 || indexOfMaterial >= interactableRenderer.materials.Length)
         {
             Debug.LogError($"{name} has an invalid material index: {indexOfMaterial}", this);
@@ -31,11 +34,12 @@ public class InteractablesBase : MonoBehaviour
 
         if (!highlightMaterial.HasProperty(highlightProperty))
         {
-            Debug.LogError($"{name}'s material does not contain {highlightProperty}.",this);
+            Debug.LogError($"{name}'s material does not contain {highlightProperty}.", this);
 
             enabled = false;
         }
     }
+    //function to do highlight transition
     public void SetHighlighted(bool highlighted)
     {
         if (isHighlighted == highlighted)
@@ -46,9 +50,10 @@ public class InteractablesBase : MonoBehaviour
 
         float targetValue = highlighted ? 1f : 0f;
 
-        highlightTween = highlightMaterial.DOFloat(targetValue,highlightProperty,highlightDuration).SetEase(Ease.OutQuint);
+        highlightTween = highlightMaterial.DOFloat(targetValue, highlightProperty, highlightDuration).SetEase(Ease.OutQuint);
     }
 
+    //fuction to destroy instance of highlight
     private void OnDestroy()
     {
         highlightTween?.Kill();

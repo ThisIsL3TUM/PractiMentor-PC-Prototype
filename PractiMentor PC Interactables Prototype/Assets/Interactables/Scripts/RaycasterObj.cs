@@ -1,8 +1,9 @@
-using UnityEngine;
 using DG.Tweening;
+using UnityEngine;
 
+//this handles too many things (raycast, hovering, picking objs, movement, socket stuff), needs to be broken down 
 public class RaycasterObj : MonoBehaviour
-{ 
+{
     private Camera playerCamera;
     private LayerMask layerMask;
     private int layerNumber;
@@ -13,7 +14,7 @@ public class RaycasterObj : MonoBehaviour
 
     //detects right & left hand positions to hold grabbables
     [SerializeField] private Transform holdPosR;//for right hand
-    [SerializeField] private Transform holdPosL;//for left hand (not yet used)
+    [SerializeField] private Transform holdPosL;//for left hand, to be implemented later
 
     //range of raycast
     [SerializeField] private float interactableRange = 15f;
@@ -24,20 +25,22 @@ public class RaycasterObj : MonoBehaviour
 
     private void Awake()
     {
+        //set up for layers
         layerMask = LayerMask.GetMask("Interactables");
         layerNumber = LayerMask.NameToLayer("Hold Layer");
 
+        //reference validators (to check if things are in place
         if (player == null)
-            Debug.LogError("Player reference is missing.", this);
+            Debug.LogError("Player reference is missing.", this);//player
 
         if (holdPosR == null)
-            Debug.LogError("Right-hand hold position is missing.", this);
+            Debug.LogError("Right-hand hold position is missing.", this);//right hand
 
         if (holdPosL == null)
-            Debug.LogError("Left-hand hold position is missing.", this);
+            Debug.LogError("Left-hand hold position is missing.", this);//left hand
 
         if (layerNumber == -1)
-            Debug.LogError("The 'Hold Layer' doesn't exist!", this);
+            Debug.LogError("The 'Hold Layer' doesn't exist!", this);//hold layer
     }
 
     private void Start()
@@ -51,6 +54,7 @@ public class RaycasterObj : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, interactableRange, layerMask))
         {
+            //highlighting logic
             switch (hit.transform.gameObject.tag)
             {
                 case "Grabbable":
@@ -82,7 +86,7 @@ public class RaycasterObj : MonoBehaviour
 
                 if (hit.transform.CompareTag("Grabbable"))
                 {
-
+                    //checks if things are grabbed or not
                     if (heldObj == null)
                     {
                         Debug.Log("You grabbed it!");
@@ -102,6 +106,7 @@ public class RaycasterObj : MonoBehaviour
                 {
                     Socket socket = hit.transform.GetComponentInParent<Socket>();
 
+                    //checks socket state 
                     if (socket == null)
                     {
                         Debug.LogWarning("The socket object has no Socket component.");
@@ -131,7 +136,7 @@ public class RaycasterObj : MonoBehaviour
         {
 
             ClearCurrentInteractable();
-            
+
         }
 
         if (heldObj != null)
@@ -141,9 +146,10 @@ public class RaycasterObj : MonoBehaviour
 
     }
 
+    //function to pick up object
     void PickUpObject(GameObject pickUpObj)
     {
-        if (pickUpObj) 
+        if (pickUpObj)
         {
             heldObj = pickUpObj;
 
@@ -154,23 +160,26 @@ public class RaycasterObj : MonoBehaviour
         }
     }
 
+    //fuction to move held grabbable
     void MoveObject()
     {
         heldObj.transform.position = holdPosR.transform.position;
         heldObj.transform.rotation = Quaternion.identity; //for obj rotation, need to double check it, sets up the initial rotation of the object 
     }
 
+    //function to place held grabbable (with the animation, assisted by Socket.cs (will be up for modification)
     void PlaceHeldObject(Transform placementPoint)
     {
         if (heldObj == null)
             return;
 
-        Physics.IgnoreCollision(heldObj.GetComponent<Collider>(),player.GetComponent<Collider>(),true);
+        Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), player.GetComponent<Collider>(), true);
         heldObj.layer = 0;
         heldObj.transform.DOMove(placementPoint.position, 0.5f).SetEase(Ease.InOutSine);
         heldObj = null;
     }
 
+    //function to clear the highlighter properly from interactable objects
     private void ClearCurrentInteractable()
     {
         if (currentInteractable == null)
