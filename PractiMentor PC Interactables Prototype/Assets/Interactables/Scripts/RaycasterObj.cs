@@ -111,7 +111,16 @@ public class RaycasterObj : MonoBehaviour
             }
 
         }
-        
+        else
+        {
+
+            if (currentInteractable != null)
+            {
+                currentInteractable.SetHighlighted(false);
+                currentInteractable = null;
+            }
+            
+        }
 
         if (heldObj != null)
         {

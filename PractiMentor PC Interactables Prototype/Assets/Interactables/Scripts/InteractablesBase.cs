@@ -47,7 +47,9 @@ public class InteractablesBase : MonoBehaviour
         isHighlighted = highlighted;
         highlightTween?.Kill();
 
-        highlightTween = highlightMaterial.DOFloat(highlighted ? 1f : 0f,highlightProperty,highlightDuration).SetEase(Ease.OutQuint);
+        float targetValue = highlighted ? 1f : 0f;
+
+        highlightTween = highlightMaterial.DOFloat(targetValue,highlightProperty,highlightDuration).SetEase(Ease.OutQuint);
     }
 
     private void OnDestroy()
