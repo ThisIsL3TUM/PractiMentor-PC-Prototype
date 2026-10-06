@@ -14,13 +14,39 @@ public class RaycasterObj : MonoBehaviour
 
     //detects right & left hand positions to hold grabbables
     [SerializeField] private Transform holdPosR;//for right hand
-    [SerializeField] private Transform holdPosL;//for left hand, to be implemented later
+    [SerializeField] private Transform holdPosL;//for left hand
+
+    //slots for the held object
+    private GameObject heldObjR;
+    private GameObject heldObjL;
+
+    private enum Hand
+    {
+        Left,
+        Right
+    }
+
+    private GameObject GetHeldObject(Hand hand)
+    {
+        return hand == Hand.Right ? heldObjR : heldObjL;
+    }
+
+    private Transform GetHoldPosition(Hand hand)
+    {
+        return hand == Hand.Right ? holdPosR : holdPosL;
+    }
+
+    private void SetHeldObject(Hand hand, GameObject obj)
+    {
+        if (hand == Hand.Right)
+            heldObjR = obj;
+        else 
+            heldObjL = obj;
+    }
 
     //range of raycast
     [SerializeField] private float interactableRange = 15f;
 
-    //when grabbable object is held
-    private GameObject heldObj;
 
 
     private void Awake()
@@ -59,7 +85,7 @@ public class RaycasterObj : MonoBehaviour
             {
                 case "Grabbable":
                 case "Clickable":
-                case "Socket" when heldObj != null:
+                case "Socket" when AnyObjectHeld():
                     {
                         if (hit.transform.TryGetComponent(out InteractablesBase nextInteractable))
                         {
@@ -76,21 +102,22 @@ public class RaycasterObj : MonoBehaviour
                     }
             }
 
-            if (!hit.transform.CompareTag("Grabbable") && !hit.transform.CompareTag("Clickable") && !(hit.transform.CompareTag("Socket") && heldObj != null))
+            if (!hit.transform.CompareTag("Grabbable") && !hit.transform.CompareTag("Clickable") && !(hit.transform.CompareTag("Socket") && AnyObjectHeld()))
             {
                 ClearCurrentInteractable();
             }
 
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            
+            if (TryGetPressedHand(out Hand pressedHand))
             {
 
                 if (hit.transform.CompareTag("Grabbable"))
                 {
                     //checks if things are grabbed or not
-                    if (heldObj == null)
+                    if (GetHeldObject(pressedHand) == null)
                     {
                         Debug.Log("You grabbed it!");
-                        PickUpObject(hit.transform.gameObject);
+                        PickUpObject(hit.transform.gameObject, pressedHand);
                     }
                     else
                     {
@@ -113,15 +140,17 @@ public class RaycasterObj : MonoBehaviour
                         return;
                     }
 
-                    if (heldObj == null)
+                    GameObject heldObject = GetHeldObject(pressedHand);
+
+                    if (heldObject == null)
                     {
                         Debug.Log("There is no item to place.");
                         return;
                     }
 
-                    if (socket.TryOccupySocket(heldObj, out Transform placementPoint))
+                    if (socket.TryOccupySocket(heldObject, out Transform placementPoint))
                     {
-                        PlaceHeldObject(placementPoint);
+                        PlaceHeldObject(placementPoint, pressedHand);
                     }
                     else
                     {
@@ -139,44 +168,71 @@ public class RaycasterObj : MonoBehaviour
 
         }
 
-        if (heldObj != null)
+        if (AnyObjectHeld())
         {
-            MoveObject();
+            MoveObject(Hand.Right);
+            MoveObject(Hand.Left);
         }
 
     }
 
     //function to pick up object
-    void PickUpObject(GameObject pickUpObj)
+    void PickUpObject(GameObject pickUpObj, Hand hand)
     {
-        if (pickUpObj)
-        {
-            heldObj = pickUpObj;
+        if (pickUpObj == null)
+            return;
 
-            heldObj.transform.DOMove(endValue: holdPosR.transform.position, 0.5f).SetEase(Ease.InOutSine);
-            heldObj.layer = layerNumber;
+        if (GetHeldObject(hand) != null)
+            return;
 
-            Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), player.GetComponent<Collider>(), true);
-        }
+        if(!CanUseHand(pickUpObj, hand)) 
+            return;
+
+        SetHeldObject(hand, pickUpObj);
+
+        Transform holdPosition = GetHoldPosition(hand);
+        pickUpObj.transform.DOMove(endValue: holdPosition.position, 0.5f).SetEase(Ease.InOutSine);
+        pickUpObj.layer = layerNumber;
+
+        Collider objectCollider = pickUpObj.GetComponent<Collider>();
+        Collider playerCollider = player.GetComponent<Collider>();
+
+        if (objectCollider != null && playerCollider != null)
+            Physics.IgnoreCollision(objectCollider, playerCollider,true);
+
+        
     }
 
     //fuction to move held grabbable
-    void MoveObject()
+    void MoveObject(Hand hand)
     {
-        heldObj.transform.position = holdPosR.transform.position;
-        heldObj.transform.rotation = Quaternion.identity; //for obj rotation, need to double check it, sets up the initial rotation of the object 
+        GameObject heldObject = GetHeldObject(hand);
+
+        if (heldObject == null)
+            return;
+
+        heldObject.transform.position = GetHoldPosition(hand).position;
+        heldObject.transform.rotation = Quaternion.identity; //for obj rotation, need to double check it, sets up the initial rotation of the object 
     }
 
     //function to place held grabbable (with the animation, assisted by Socket.cs (will be up for modification)
-    void PlaceHeldObject(Transform placementPoint)
+    void PlaceHeldObject(Transform placementPoint, Hand hand)
     {
-        if (heldObj == null)
+        GameObject heldObject = GetHeldObject(hand);
+
+        if (heldObject == null)
             return;
 
-        Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), player.GetComponent<Collider>(), true);
-        heldObj.layer = 0;
-        heldObj.transform.DOMove(placementPoint.position, 0.5f).SetEase(Ease.InOutSine);
-        heldObj = null;
+        Collider objectCollider = heldObject.GetComponent<Collider>();
+        Collider playerCollider = player.GetComponent<Collider>();
+
+        if (objectCollider != null && playerCollider != null)
+            Physics.IgnoreCollision(objectCollider, playerCollider, false);
+
+        heldObject.layer = 0;
+        heldObject.transform.DOMove(placementPoint.position, 0.5f).SetEase(Ease.InOutSine);
+
+        SetHeldObject(hand, null);
     }
 
     //function to clear the highlighter properly from interactable objects
@@ -187,5 +243,44 @@ public class RaycasterObj : MonoBehaviour
 
         currentInteractable.SetHighlighted(false);
         currentInteractable = null;
+    }
+
+    private bool TryGetPressedHand(out Hand hand)
+    {
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            hand = Hand.Right;
+            return true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            hand = Hand.Left;
+            return true;
+        }
+
+        hand = default;
+        return false;
+    }
+
+    private bool CanUseHand(GameObject obj, Hand hand)
+    {
+        Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
+
+        if(grabbable == null) 
+            return false;
+
+        return grabbable.HandDirection switch
+        {
+            Grabbable.GrabbableHandDirection.Both => true,
+            Grabbable.GrabbableHandDirection.Left => hand == Hand.Left,
+            Grabbable.GrabbableHandDirection.Right => hand == Hand.Right,
+            _ => false
+        };
+    }
+
+    private bool AnyObjectHeld()
+    {
+        return heldObjR != null || heldObjL != null;
     }
 }
