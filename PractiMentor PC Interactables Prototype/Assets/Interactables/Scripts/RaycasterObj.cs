@@ -108,16 +108,16 @@ public class RaycasterObj : MonoBehaviour
             }
 
             
-            if (TryGetPressedHand(out Hand pressedHand))
+            if (Input.GetKeyDown(KeyCode.Mouse0))
             {
 
                 if (hit.transform.CompareTag("Grabbable"))
                 {
                     //checks if things are grabbed or not
-                    if (GetHeldObject(pressedHand) == null)
+                    if (TryFindFreeHand(hit.transform.gameObject, out Hand selectedHand))
                     {
                         Debug.Log("You grabbed it!");
-                        PickUpObject(hit.transform.gameObject, pressedHand);
+                        PickUpObject(hit.transform.gameObject, selectedHand);
                     }
                     else
                     {
@@ -140,22 +140,20 @@ public class RaycasterObj : MonoBehaviour
                         return;
                     }
 
-                    GameObject heldObject = GetHeldObject(pressedHand);
+                    if (TryFindHeldHand(out Hand selectedHand))
+                    {
+                        GameObject heldObject = GetHeldObject(selectedHand);
 
-                    if (heldObject == null)
-                    {
-                        Debug.Log("There is no item to place.");
-                        return;
+                        if (socket.TryOccupySocket(heldObject, out Transform placementPoint))
+                        {
+                            PlaceHeldObject(placementPoint, selectedHand);
+                        }
+                        else
+                        {
+                            Debug.Log("There is already something here...");
+                        }
                     }
 
-                    if (socket.TryOccupySocket(heldObject, out Transform placementPoint))
-                    {
-                        PlaceHeldObject(placementPoint, pressedHand);
-                    }
-                    else
-                    {
-                        Debug.Log("There is already something here...");
-                    }
                 }
 
             }
@@ -245,15 +243,15 @@ public class RaycasterObj : MonoBehaviour
         currentInteractable = null;
     }
 
-    private bool TryGetPressedHand(out Hand hand)
+    private bool TryFindHeldHand(out Hand hand)
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (heldObjR != null)
         {
             hand = Hand.Right;
             return true;
         }
 
-        if (Input.GetKeyDown(KeyCode.Mouse1))
+        if (heldObjL != null)
         {
             hand = Hand.Left;
             return true;
@@ -262,6 +260,25 @@ public class RaycasterObj : MonoBehaviour
         hand = default;
         return false;
     }
+
+    private bool TryFindFreeHand(GameObject objectToPickUp, out Hand hand)
+    {
+        if(CanUseHand(objectToPickUp, Hand.Right) && GetHeldObject(Hand.Right) == null)
+        {
+            hand = Hand.Right;
+            return true;
+        }
+
+        if(CanUseHand(objectToPickUp,Hand.Left) && GetHeldObject(Hand.Left) == null)
+        {
+            hand = Hand.Left;
+            return true;
+        }
+
+        hand = default;
+        return false;
+    }
+
 
     private bool CanUseHand(GameObject obj, Hand hand)
     {

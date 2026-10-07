@@ -314,7 +314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc147c11ef12064fbb43f2de0049935, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
-  grabbableHandDirection: 0
+  grabbableHandDirection: 2
 --- !u!1 &120838859
 GameObject:
   m_ObjectHideFlags: 0
@@ -10538,7 +10538,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc147c11ef12064fbb43f2de0049935, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
-  grabbableHandDirection: 2
+  grabbableHandDirection: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
