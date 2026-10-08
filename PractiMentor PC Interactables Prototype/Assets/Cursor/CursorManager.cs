@@ -11,6 +11,8 @@ public class CursorManager : MonoBehaviour
 
     [SerializeField] private Vector2 clickPos = Vector2.zero;
 
+    private Player player;
+
     private void Awake()
     {
         if(Instance == null)
@@ -28,11 +30,25 @@ public class CursorManager : MonoBehaviour
     {
        Cursor.SetCursor(cursorTextureDefault, clickPos, CursorMode.Auto);
        Cursor.lockState = CursorLockMode.Locked;
+       Cursor.visible = false;
     }
 
     void Update()
     {
-        Cursor.visible = false;
+       // Cursor.visible = false;
+
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift)) 
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
     }
 
     public void SetToMode(ModeOfCursor modeOfCursor)

@@ -1,15 +1,29 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public enum PlayerMode
+    {
+        Navigate,
+        SliderInteraction
+    }
+
+    [SerializeField] private PlayerMode mode = PlayerMode.Navigate;
+
     //camera movement
     [SerializeField] private float mouseSensitivity = 2f;
+    private float mouseSensitivityInitial;
+    
     private float verticalRotation = 0f;
     private Transform cameraTransform;
 
     //player movement properties
     private Rigidbody rb;
+    
     [SerializeField] private float moveSpeed = 5f;
+    private float moveSpeedInitial;
+
     private float moveHorizontal;
     private float moveForward;
 
@@ -18,6 +32,9 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         cameraTransform = Camera.main.transform;
+
+        mouseSensitivityInitial = mouseSensitivity;
+        moveSpeedInitial = moveSpeed;
     }
 
 
@@ -27,6 +44,8 @@ public class Player : MonoBehaviour
         moveForward = Input.GetAxisRaw("Vertical");
         
         RotateCamera();
+
+        SetPlayerState(mode);
     }
 
     void FixedUpdate()
@@ -56,4 +75,22 @@ public class Player : MonoBehaviour
         cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
 
     }
+
+    void SetPlayerState(PlayerMode playerMode)
+    {
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            playerMode = PlayerMode.SliderInteraction;
+            mouseSensitivity = 0f;
+            moveSpeed = 0f;
+        }
+        
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            playerMode = PlayerMode.Navigate;
+            mouseSensitivity = mouseSensitivityInitial;
+            moveSpeed = moveSpeedInitial;
+        }
+    }
+
 }
