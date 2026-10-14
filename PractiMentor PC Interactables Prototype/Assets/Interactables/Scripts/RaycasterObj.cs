@@ -13,6 +13,7 @@ public class RaycasterObj : MonoBehaviour
 
     //slider reference
     [SerializeField] private Slider interactionSlider;
+    [SerializeField] private SliderTESTER sliderController;
 
     //player
     [SerializeField] private GameObject player;
@@ -226,7 +227,7 @@ public class RaycasterObj : MonoBehaviour
             return;
 
         heldObject.transform.position = GetHoldPosition(hand).position;
-        heldObject.transform.rotation = Quaternion.identity; //for obj rotation, need to double check it, sets up the initial rotation of the object 
+        //heldObject.transform.rotation = Quaternion.identity; //for obj rotation, need to double check it, sets up the initial rotation of the object 
     }
 
     //function to place held grabbable (with the animation, assisted by Socket.cs (will be up for modification)
@@ -324,10 +325,15 @@ public class RaycasterObj : MonoBehaviour
         if (interactionSlider != null)
             interactionSlider.gameObject.SetActive(showSlider);
 
-        if(playerController != null)
+        if (showSlider)
+            sliderController.SetTarget(heldObjR.transform);
+        else
+            sliderController.ClearTarget();
+
+        if (playerController != null)
         {
             playerController.SetPlayerState(
-                showSlider 
+                showSlider
                 ? Player.PlayerMode.SliderInteraction
                 : Player.PlayerMode.Navigate
                 );

@@ -3632,6 +3632,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1299747885}
   - component: {fileID: 1299747886}
+  - component: {fileID: 1299747887}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -3712,6 +3713,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1299747887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1299747884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e537c48c73b03644f89e5e870dfd1d44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderTESTER
+  slider: {fileID: 1299747886}
+  rotationReference: {fileID: 1646463911}
+  initialRotation: 0
+  targetRotation: 60
 --- !u!1 &1322428083 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3143115035354930113, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
@@ -10127,7 +10144,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaycasterObj
   interactionSlider: {fileID: 1299747886}
+  sliderController: {fileID: 1299747887}
   player: {fileID: 2027579899}
+  playerController: {fileID: 0}
   holdPosR: {fileID: 1646463911}
   holdPosL: {fileID: 1625601920}
   interactableRange: 15
