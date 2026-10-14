@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,8 @@ public class RaycasterObj : MonoBehaviour
 
     //player
     [SerializeField] private GameObject player;
+
+    [SerializeField] private Player playerController;
 
     //detects right & left hand positions to hold grabbables
     [SerializeField] private Transform holdPosR;//for right hand
@@ -55,13 +58,16 @@ public class RaycasterObj : MonoBehaviour
 
     private void Awake()
     {
+        if (playerController == null && player != null)
+            playerController = player.GetComponent<Player>();
+
         //set up for layers
         layerMask = LayerMask.GetMask("Interactables");
         layerNumber = LayerMask.NameToLayer("Hold Layer");
 
         //reference validators (to check if things are in place
-        if (player == null)
-            Debug.LogError("Player reference is missing.", this);//player
+        //if (player == null)
+            //Debug.LogError("Player reference is missing.", this);//player
 
         if (holdPosR == null)
             Debug.LogError("Right-hand hold position is missing.", this);//right hand
@@ -316,9 +322,17 @@ public class RaycasterObj : MonoBehaviour
         bool showSlider = heldObjR != null && heldObjL != null && CanInteract(heldObjR) && CanInteract(heldObjL);
 
         if (interactionSlider != null)
-        {
             interactionSlider.gameObject.SetActive(showSlider);
+
+        if(playerController != null)
+        {
+            playerController.SetPlayerState(
+                showSlider 
+                ? Player.PlayerMode.SliderInteraction
+                : Player.PlayerMode.Navigate
+                );
         }
+
     }
 
     private bool CanInteract (GameObject obj)

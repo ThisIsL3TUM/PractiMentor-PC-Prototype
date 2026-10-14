@@ -11,6 +11,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private PlayerMode mode = PlayerMode.Navigate;
 
+    public PlayerMode CurrentMode => mode;
+
     //camera movement
     [SerializeField] private float mouseSensitivity = 2f;
     private float mouseSensitivityInitial;
@@ -37,6 +39,8 @@ public class Player : MonoBehaviour
 
         mouseSensitivityInitial = mouseSensitivity;
         moveSpeedInitial = moveSpeed;
+
+        SetPlayerState(mode);
     }
 
 
@@ -46,8 +50,6 @@ public class Player : MonoBehaviour
         moveForward = Input.GetAxisRaw("Vertical");
         
         RotateCamera();
-
-        SetPlayerState(mode);
     }
 
     void FixedUpdate()
@@ -78,18 +80,20 @@ public class Player : MonoBehaviour
 
     }
 
-    void SetPlayerState(PlayerMode playerMode)
+    public void SetPlayerState(PlayerMode newMode)
     {
-        if (Input.GetKeyDown(KeyCode.Mouse1))
+        if (mode == newMode)
+            return;
+
+        mode = newMode;
+
+        if (mode == PlayerMode.SliderInteraction)
         {
-            playerMode = PlayerMode.SliderInteraction;
-            PlayerStateSlider(playerMode);
+            PlayerStateSlider(mode);
         }
-        
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        else
         {
-            playerMode = PlayerMode.Navigate;
-            PlayerStateNavigate(playerMode);
+            PlayerStateNavigate(mode);
         }
     }
 
