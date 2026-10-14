@@ -390,7 +390,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 2
-  canThisInteract: 1
+  canObjInteract: 0
 --- !u!1 &101269379
 GameObject:
   m_ObjectHideFlags: 0
@@ -1186,7 +1186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 0
-  canThisInteract: 0
+  canObjInteract: 1
 --- !u!1 &321034284
 GameObject:
   m_ObjectHideFlags: 0
@@ -3588,7 +3588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 1
-  canThisInteract: 0
+  canObjInteract: 0
 --- !u!1 &1174749762
 GameObject:
   m_ObjectHideFlags: 0
@@ -10126,6 +10126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebc1796dc5bbf74459230ef08803a789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaycasterObj
+  interactionSlider: {fileID: 1299747886}
   player: {fileID: 2027579899}
   holdPosR: {fileID: 1646463911}
   holdPosL: {fileID: 1625601920}
@@ -10932,7 +10933,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 1
-  canThisInteract: 1
+  canObjInteract: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
