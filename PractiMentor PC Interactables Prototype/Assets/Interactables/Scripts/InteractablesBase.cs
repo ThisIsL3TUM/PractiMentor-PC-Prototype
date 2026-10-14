@@ -9,6 +9,7 @@ public class InteractablesBase : MonoBehaviour
     private const string highlightProperty = "_HighlightMaster";
 
     //adjustable valuables for material index and duration
+    [Header("General Set Up")]
     [SerializeField] private int indexOfMaterial = 0;
     [SerializeField] private float highlightDuration = 0.5f;
 

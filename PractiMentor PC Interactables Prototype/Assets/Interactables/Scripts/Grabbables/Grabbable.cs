@@ -9,6 +9,7 @@ public class Grabbable : MonoBehaviour
         Both
     }
 
+    [Header("General Set Up")]
     [SerializeField] private GrabbableHandDirection grabbableHandDirection = GrabbableHandDirection.Both;
 
     //USED FOR TESTING PURPOSES, will be up for change!!!!!

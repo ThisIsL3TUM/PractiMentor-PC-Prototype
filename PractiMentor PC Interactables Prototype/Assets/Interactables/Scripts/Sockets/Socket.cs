@@ -11,6 +11,7 @@ public class Socket : MonoBehaviour
     }
 
     //socket logic (its state + point where items can be put on
+    [Header("General Set Up")]
     [SerializeField] private SocketStateType socketBehaviour = SocketStateType.Free;
     [SerializeField] private Transform placementPoint;
 

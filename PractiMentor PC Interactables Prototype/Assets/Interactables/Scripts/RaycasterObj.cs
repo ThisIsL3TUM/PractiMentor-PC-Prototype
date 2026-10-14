@@ -11,22 +11,24 @@ public class RaycasterObj : MonoBehaviour
     private int layerNumber;
     private InteractablesBase currentInteractable;
 
-    //slider reference
-    [SerializeField] private Slider interactionSlider;
-    [SerializeField] private SliderTESTER sliderController;
-
     //player
+    [Header ("General Set Up")]
     [SerializeField] private GameObject player;
-
     [SerializeField] private Player playerController;
 
     //detects right & left hand positions to hold grabbables
+    [Header("Hand Position Set Up")]
     [SerializeField] private Transform holdPosR;//for right hand
     [SerializeField] private Transform holdPosL;//for left hand
 
     //slots for the held object
     private GameObject heldObjR;
     private GameObject heldObjL;
+
+    //slider reference
+    [Header("Slider Set Up")]
+    [SerializeField] private Slider interactionSlider;
+    [SerializeField] private SliderTESTER sliderController;
 
     private enum Hand
     {
@@ -53,6 +55,7 @@ public class RaycasterObj : MonoBehaviour
     }
 
     //range of raycast
+    [Header ("Raycast")]
     [SerializeField] private float interactableRange = 15f;
 
 

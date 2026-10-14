@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
         Navigate,
         SliderInteraction
     }
-
+    [Header("General Set Up")]
     [SerializeField] private PlayerMode mode = PlayerMode.Navigate;
 
     public PlayerMode CurrentMode => mode;
