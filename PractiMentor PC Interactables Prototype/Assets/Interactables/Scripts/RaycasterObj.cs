@@ -1,5 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 //this handles too many things (raycast, hovering, picking objs, movement, socket stuff), needs to be broken down 
 public class RaycasterObj : MonoBehaviour
@@ -8,6 +9,9 @@ public class RaycasterObj : MonoBehaviour
     private LayerMask layerMask;
     private int layerNumber;
     private InteractablesBase currentInteractable;
+
+    //slider reference
+    [SerializeField] private Slider interactionSlider;
 
     //player
     [SerializeField] private GameObject player;
@@ -72,6 +76,9 @@ public class RaycasterObj : MonoBehaviour
     private void Start()
     {
         playerCamera = Camera.main;
+
+        if(interactionSlider != null)
+            interactionSlider.gameObject.SetActive(false);
     }
     private void Update()
     {
@@ -118,6 +125,7 @@ public class RaycasterObj : MonoBehaviour
                     {
                         Debug.Log("You grabbed it!");
                         PickUpObject(hit.transform.gameObject, selectedHand);
+
                     }
                     else
                     {
@@ -171,6 +179,8 @@ public class RaycasterObj : MonoBehaviour
             MoveObject(Hand.Right);
             MoveObject(Hand.Left);
         }
+
+        UpdateInteractionSlider();
 
     }
 
@@ -299,5 +309,21 @@ public class RaycasterObj : MonoBehaviour
     private bool AnyObjectHeld()
     {
         return heldObjR != null || heldObjL != null;
+    }
+
+    private void UpdateInteractionSlider()
+    {
+        bool showSlider = heldObjR != null && heldObjL != null && CanInteract(heldObjR) && CanInteract(heldObjL);
+
+        if (interactionSlider != null)
+        {
+            interactionSlider.gameObject.SetActive(showSlider);
+        }
+    }
+
+    private bool CanInteract (GameObject obj)
+    {
+        Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
+        return grabbable != null && grabbable.CanThisInteract;
     }
 }

@@ -390,6 +390,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 2
+  canThisInteract: 1
 --- !u!1 &101269379
 GameObject:
   m_ObjectHideFlags: 0
@@ -1185,6 +1186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 0
+  canThisInteract: 0
 --- !u!1 &321034284
 GameObject:
   m_ObjectHideFlags: 0
@@ -1249,7 +1251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CursorManager
   cursorTextureDefault: {fileID: 2800000, guid: 07eed2845d9484b4d9c9120739efa167, type: 3}
-  cursorTextureClick: {fileID: 0}
+  cursorTextureClick: {fileID: 2800000, guid: 07eed2845d9484b4d9c9120739efa167, type: 3}
   clickPos: {x: 0, y: 0}
 --- !u!1 &330585543
 GameObject:
@@ -3586,6 +3588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 1
+  canThisInteract: 0
 --- !u!1 &1174749762
 GameObject:
   m_ObjectHideFlags: 0
@@ -10107,8 +10110,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45cc87c81ebd8fb46ae3e031b5ae85cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
+  mode: 0
   mouseSensitivity: 1
   moveSpeed: 5
+  cursorManager: {fileID: 321034287}
 --- !u!114 &2027579906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10927,6 +10932,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 1
+  canThisInteract: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

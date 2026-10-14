@@ -36,7 +36,7 @@ public class CursorUI : MonoBehaviour
 
     private void OnPointerPositionChanged(InputAction.CallbackContext ctx)
     {
-        if (cursorTransform != null || canvasRectTransform == null)
+        if (cursorTransform != null && canvasRectTransform != null)
         {
             var mousePosition= ctx.ReadValue<Vector2>();
 

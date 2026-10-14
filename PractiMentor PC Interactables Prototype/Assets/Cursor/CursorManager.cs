@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 //THIS WHOLE SCRIPT NEEDS TO BE REWORKED TO ACT AS INTENDED!!!
@@ -28,27 +29,7 @@ public class CursorManager : MonoBehaviour
 
     void Start()
     {
-       Cursor.SetCursor(cursorTextureDefault, clickPos, CursorMode.Auto);
-       Cursor.lockState = CursorLockMode.Locked;
-       Cursor.visible = false;
-    }
-
-    void Update()
-    {
-       // Cursor.visible = false;
-
-        if (Input.GetKeyDown(KeyCode.Mouse1))
-        {
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = true;
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftShift)) 
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
+        SetInteractionMode(false);
     }
 
     public void SetToMode(ModeOfCursor modeOfCursor)
@@ -56,11 +37,27 @@ public class CursorManager : MonoBehaviour
         switch (modeOfCursor)
         {
             case ModeOfCursor.Default:
-                Cursor.SetCursor(cursorTextureClick, clickPos, CursorMode.Auto);
+                Cursor.SetCursor(cursorTextureDefault, clickPos, CursorMode.Auto);
                 break;
             case ModeOfCursor.Click:
                 Cursor.SetCursor(cursorTextureClick, clickPos, CursorMode.Auto);
                 break;
+        }
+    }
+
+    public void SetInteractionMode(bool isInteracting)
+    {
+        if (isInteracting)
+        {
+            SetToMode(ModeOfCursor.Click);
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+        }
+        else
+        {
+            SetToMode(ModeOfCursor.Default);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 

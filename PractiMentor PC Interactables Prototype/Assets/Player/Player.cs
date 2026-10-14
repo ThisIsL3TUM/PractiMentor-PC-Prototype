@@ -27,6 +27,8 @@ public class Player : MonoBehaviour
     private float moveHorizontal;
     private float moveForward;
 
+    [SerializeField] private CursorManager cursorManager;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -81,15 +83,34 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             playerMode = PlayerMode.SliderInteraction;
-            mouseSensitivity = 0f;
-            moveSpeed = 0f;
+            PlayerStateSlider(playerMode);
         }
         
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             playerMode = PlayerMode.Navigate;
+            PlayerStateNavigate(playerMode);
+        }
+    }
+
+    void PlayerStateSlider(PlayerMode playerMode)
+    {
+        if (playerMode == PlayerMode.SliderInteraction)
+        {
+            mouseSensitivity = 0f;
+            moveSpeed = 0f;
+
+            cursorManager.SetInteractionMode(true);
+        }
+    }
+    void PlayerStateNavigate(PlayerMode playerMode)
+    {
+        if (playerMode == PlayerMode.Navigate)
+        {
             mouseSensitivity = mouseSensitivityInitial;
             moveSpeed = moveSpeedInitial;
+
+            cursorManager.SetInteractionMode(false);
         }
     }
 
