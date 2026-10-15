@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class SliderTESTER : MonoBehaviour
 {
@@ -16,9 +17,10 @@ public class SliderTESTER : MonoBehaviour
 
     //elements related to object rotation snapping
     [SerializeField] private Boolean isSnapping = false;
-    [Range(0, 15)][SerializeField] private float rotationSnapAngle = 15f;
+    [Range(0, 90)][SerializeField] private float rotationSnapAngle = 15f;
 
     private Transform targetObject;
+    private Transform targetObjectInitial;
 
     public enum SliderRotationDirection
     {
@@ -30,6 +32,7 @@ public class SliderTESTER : MonoBehaviour
     [SerializeField] private SliderRotationDirection rotationDirection = SliderRotationDirection.X;
 
     public event Action TargetTransformReached;
+    private Quaternion targetObjectInitialRotation;
 
     private bool targetReached;
     [SerializeField] private float targetTolerance = 1f;
@@ -42,6 +45,7 @@ public class SliderTESTER : MonoBehaviour
     public void SetTarget(Transform target)
     {
         targetObject = target;
+        targetObjectInitialRotation = target.rotation;//is affected by snapping and no snapping, if obj doesn't snap it doesn't rotate, if it does it resets back to the last instance of the targetObject
         targetReached = false;
     }
 
@@ -84,7 +88,9 @@ public class SliderTESTER : MonoBehaviour
         if (!targetReached && angleDifference <= targetTolerance)
         {
             targetReached = true;
+            targetObject.transform.DORotateQuaternion(targetObjectInitialRotation, 0.5f).SetEase(Ease.InOutSine);
             TargetTransformReached?.Invoke();
+
         }
     }
 

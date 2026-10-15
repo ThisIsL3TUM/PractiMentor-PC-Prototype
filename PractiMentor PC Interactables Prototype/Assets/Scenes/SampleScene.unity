@@ -3728,10 +3728,11 @@ MonoBehaviour:
   slider: {fileID: 1299747886}
   transformReference: {fileID: 1646463911}
   initialRotation: 0
-  targetRotation: 60
+  targetRotation: 90
   isSnapping: 1
   rotationSnapAngle: 15
   rotationDirection: 2
+  targetTolerance: 1
 --- !u!1 &1322428083 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3143115035354930113, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
@@ -10146,12 +10147,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebc1796dc5bbf74459230ef08803a789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaycasterObj
-  interactionSlider: {fileID: 1299747886}
-  sliderController: {fileID: 1299747887}
   player: {fileID: 2027579899}
   playerController: {fileID: 0}
   holdPosR: {fileID: 1646463911}
   holdPosL: {fileID: 1625601920}
+  interactionSlider: {fileID: 1299747886}
+  sliderController: {fileID: 1299747887}
   interactableRange: 15
 --- !u!43 &2084865764
 Mesh:
