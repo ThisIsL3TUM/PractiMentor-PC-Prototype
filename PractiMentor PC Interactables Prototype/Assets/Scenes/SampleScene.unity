@@ -3728,9 +3728,9 @@ MonoBehaviour:
   slider: {fileID: 1299747886}
   transformReference: {fileID: 1646463911}
   initialRotation: 0
-  targetRotation: 90
+  targetRotation: 60
   isSnapping: 1
-  rotationSnapAngle: 15
+  rotationSnapAngle: 30
   rotationDirection: 2
   targetTolerance: 1
 --- !u!1 &1322428083 stripped
