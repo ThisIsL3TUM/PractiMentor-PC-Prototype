@@ -30,6 +30,8 @@ public class RaycasterObj : MonoBehaviour
     [SerializeField] private Slider interactionSlider;
     [SerializeField] private SliderTESTER sliderController;
 
+    private bool sliderCompleted;
+
     private enum Hand
     {
         Left,
@@ -323,15 +325,28 @@ public class RaycasterObj : MonoBehaviour
 
     private void UpdateInteractionSlider()
     {
-        bool showSlider = heldObjR != null && heldObjL != null && CanInteract(heldObjR) && CanInteract(heldObjL);
+        bool canUseSlider = heldObjR != null && heldObjL != null && CanInteract(heldObjR) && CanInteract(heldObjL);
+
+        if (!canUseSlider)
+        {
+            sliderCompleted = false;
+
+            sliderController.TargetTransformReached -= OnSliderTargetReached;
+            sliderController.ClearTarget();
+        }
+
+        bool showSlider = canUseSlider && !sliderCompleted;
 
         if (interactionSlider != null)
             interactionSlider.gameObject.SetActive(showSlider);
 
         if (showSlider)
+        {
+            sliderController.TargetTransformReached -= OnSliderTargetReached;
+            sliderController.TargetTransformReached += OnSliderTargetReached;
+
             sliderController.SetTarget(heldObjR.transform);
-        else
-            sliderController.ClearTarget();
+        }
 
         if (playerController != null)
         {
@@ -342,6 +357,19 @@ public class RaycasterObj : MonoBehaviour
                 );
         }
 
+    }
+
+    private void OnSliderTargetReached()
+    {
+        sliderCompleted = true;
+
+        if(interactionSlider != null)
+            interactionSlider.gameObject.SetActive(false);
+
+        sliderController.ClearTarget();
+
+        if(playerController != null)
+            playerController.SetPlayerState(Player.PlayerMode.Navigate);
     }
 
     private bool CanInteract (GameObject obj)

@@ -29,6 +29,11 @@ public class SliderTESTER : MonoBehaviour
 
     [SerializeField] private SliderRotationDirection rotationDirection = SliderRotationDirection.X;
 
+    public event Action TargetTransformReached;
+
+    private bool targetReached;
+    [SerializeField] private float targetTolerance = 1f;
+
     private void Awake()
     {
         slider.onValueChanged.AddListener(RotateTarget);
@@ -37,11 +42,13 @@ public class SliderTESTER : MonoBehaviour
     public void SetTarget(Transform target)
     {
         targetObject = target;
+        targetReached = false;
     }
 
     public void ClearTarget()
     {
         targetObject = null;
+        targetReached = false;
     }
 
     private void RotateTarget(float value)
@@ -70,6 +77,14 @@ public class SliderTESTER : MonoBehaviour
             case SliderRotationDirection.Z:
                 targetObject.rotation = transformReference.rotation * Quaternion.Euler(0f, 0f, angle);
                 break;
+        }
+
+        float angleDifference = Mathf.Abs(Mathf.DeltaAngle(angle, targetRotation));
+
+        if (!targetReached && angleDifference <= targetTolerance)
+        {
+            targetReached = true;
+            TargetTransformReached?.Invoke();
         }
     }
 
