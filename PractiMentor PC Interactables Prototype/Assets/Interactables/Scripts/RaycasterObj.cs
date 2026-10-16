@@ -94,6 +94,20 @@ public class RaycasterObj : MonoBehaviour
     }
     private void Update()
     {
+        if (AnyObjectHeld())
+        {
+            MoveObject(Hand.Right);
+            MoveObject(Hand.Left);
+        }
+
+        UpdateInteractionSlider();
+
+        if(playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction)
+        {
+            ClearCurrentInteractable();
+            return;
+        }
+
         Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -186,19 +200,15 @@ public class RaycasterObj : MonoBehaviour
 
         }
 
-        if (AnyObjectHeld())
-        {
-            MoveObject(Hand.Right);
-            MoveObject(Hand.Left);
-        }
-
-        UpdateInteractionSlider();
 
     }
 
     //function to pick up object
     void PickUpObject(GameObject pickUpObj, Hand hand)
     {
+        if(playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction)
+            return;
+
         if (pickUpObj == null)
             return;
 
