@@ -231,8 +231,7 @@ public class RaycasterObj : MonoBehaviour
         if (heldObject == null)
             return;
 
-        heldObject.transform.position = GetHoldPosition(hand).position;
-        //heldObject.transform.rotation = Quaternion.identity; //for obj rotation, need to double check it, sets up the initial rotation of the object 
+        heldObject.transform.position = GetHoldPosition(hand).position; 
     }
 
     //function to place held grabbable (with the animation, assisted by Socket.cs (will be up for modification)
@@ -345,7 +344,7 @@ public class RaycasterObj : MonoBehaviour
             sliderController.TargetTransformReached -= OnSliderTargetReached;
             sliderController.TargetTransformReached += OnSliderTargetReached;
 
-            sliderController.SetTarget(heldObjR.transform);//this might screw over with the proper rotation
+            sliderController.SetTarget(heldObjR.transform);
         }
 
         if (playerController != null)
