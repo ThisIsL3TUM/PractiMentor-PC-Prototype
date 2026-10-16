@@ -3727,8 +3727,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SliderTESTER
   slider: {fileID: 1299747886}
   transformReference: {fileID: 1646463911}
+  sliderMoveChargeRate: 5
+  resetDuration: 0.5
   initialRotation: 0
-  targetRotation: 60
+  targetRotation: 90
   isSnapping: 1
   rotationSnapAngle: 15
   rotationDirection: 2

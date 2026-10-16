@@ -2,13 +2,16 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.EventSystems;
 
-public class SliderTESTER : MonoBehaviour
+public class SliderTESTER : MonoBehaviour, IPointerUpHandler
 {
     //general set up stuff
     [Header("General Set Up")]
     [SerializeField] private Slider slider;
     [SerializeField] private Transform transformReference;//for both rotation and position
+    [SerializeField] private float sliderMoveChargeRate = 1f;
+    [SerializeField] private float resetDuration = 0.5f;
 
     //elements related to general rotation
     [Header("Rotation Set Up")]
@@ -90,6 +93,7 @@ public class SliderTESTER : MonoBehaviour
 
         float angleDifference = Mathf.Abs(Mathf.DeltaAngle(angle, targetRotation));
 
+
         if (!targetReached && angleDifference <= targetTolerance)
         {
             targetReached = true;
@@ -102,5 +106,14 @@ public class SliderTESTER : MonoBehaviour
     private void OnDestroy()
     {
         slider.onValueChanged.RemoveListener(RotateTarget);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (!targetReached && targetObject != null)
+        {
+            slider.DOKill();
+            slider.DOValue(slider.maxValue, resetDuration).SetEase(Ease.InOutSine);
+        }
     }
 }
