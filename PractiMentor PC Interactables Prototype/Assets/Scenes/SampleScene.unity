@@ -3730,7 +3730,7 @@ MonoBehaviour:
   initialRotation: 0
   targetRotation: 60
   isSnapping: 1
-  rotationSnapAngle: 30
+  rotationSnapAngle: 15
   rotationDirection: 2
   targetTolerance: 1
 --- !u!1 &1322428083 stripped

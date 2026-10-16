@@ -20,7 +20,10 @@ public class SliderTESTER : MonoBehaviour
     [Range(0, 90)][SerializeField] private float rotationSnapAngle = 15f;
 
     private Transform targetObject;
-    private Transform targetObjectInitial;
+    private Quaternion targetObjectInitialRotation;
+    private bool hasInitialRotation;
+
+    public event Action TargetTransformReached;
 
     public enum SliderRotationDirection
     {
@@ -30,9 +33,6 @@ public class SliderTESTER : MonoBehaviour
     }
 
     [SerializeField] private SliderRotationDirection rotationDirection = SliderRotationDirection.X;
-
-    public event Action TargetTransformReached;
-    private Quaternion targetObjectInitialRotation;
 
     private bool targetReached;
     [SerializeField] private float targetTolerance = 1f;
@@ -44,14 +44,19 @@ public class SliderTESTER : MonoBehaviour
     
     public void SetTarget(Transform target)
     {
+        if (targetObject == target && hasInitialRotation)
+            return;
+
         targetObject = target;
-        targetObjectInitialRotation = target.rotation;//is affected by snapping and no snapping, if obj doesn't snap it doesn't rotate, if it does it resets back to the last instance of the targetObject
+        targetObjectInitialRotation = target.rotation;
+        hasInitialRotation = true;
         targetReached = false;
     }
 
     public void ClearTarget()
     {
         targetObject = null;
+        hasInitialRotation = false;
         targetReached = false;
     }
 
@@ -88,7 +93,7 @@ public class SliderTESTER : MonoBehaviour
         if (!targetReached && angleDifference <= targetTolerance)
         {
             targetReached = true;
-            targetObject.transform.DORotateQuaternion(targetObjectInitialRotation, 0.5f).SetEase(Ease.InOutSine);
+            targetObject.DORotateQuaternion(targetObjectInitialRotation, 0.5f).SetEase(Ease.InOutSine);
             TargetTransformReached?.Invoke();
 
         }
