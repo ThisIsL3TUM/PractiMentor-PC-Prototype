@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6639623378294422475}
   - component: {fileID: 4690209393277936484}
+  - component: {fileID: 8842270930932932936}
+  - component: {fileID: 5428843088392184375}
   m_Layer: 0
   m_Name: CoffeeBag
   m_TagString: Untagged
@@ -47,6 +49,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 1
   canObjInteract: 1
+--- !u!114 &8842270930932932936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3595200643642108949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efc147c11ef12064fbb43f2de0049935, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Grabbable
+  grabbableHandDirection: 1
+  canObjInteract: 1
+--- !u!114 &5428843088392184375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3595200643642108949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a590582ffc7ef7d4d8aa35ba636d46c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderTarget
+  axis: 2
+  initialRotation: 0
+  targetRotation: 60
+  snappingActive: 1
+  rotationSnapAngle: 15
+  tolerance: 1
 --- !u!1 &6760385556243268339
 GameObject:
   m_ObjectHideFlags: 0
@@ -296,7 +330,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 360
+  m_VersionIndex: 363
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

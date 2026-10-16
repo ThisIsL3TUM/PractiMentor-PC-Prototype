@@ -22,7 +22,9 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
     [SerializeField] private Boolean isSnapping = false;
     [Range(0, 90)][SerializeField] private float rotationSnapAngle = 15f;
 
+    private SliderTarget activeTarget;
     private Transform targetObject;
+
     private Quaternion targetObjectInitialRotation;
     private bool hasInitialRotation;
 
@@ -45,19 +47,21 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
         slider.onValueChanged.AddListener(RotateTarget);
     }
     
-    public void SetTarget(Transform target)
+    public void SetTarget(SliderTarget target)
     {
-        if (targetObject == target && hasInitialRotation)
+        if (activeTarget == target && hasInitialRotation)
             return;
 
-        targetObject = target;
-        targetObjectInitialRotation = target.rotation;
+        activeTarget = target;
+        targetObject = target.transform;
+        targetObjectInitialRotation = targetObject.rotation;
         hasInitialRotation = true;
         targetReached = false;
     }
 
     public void ClearTarget()
     {
+        activeTarget = null;
         targetObject = null;
         hasInitialRotation = false;
         targetReached = false;
@@ -65,36 +69,33 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
 
     private void RotateTarget(float value)
     {
-        if (targetObject == null)
+        if (activeTarget == null)
             return;
 
-        float angle = Mathf.Lerp(targetRotation, initialRotation, value);
+        float angle = Mathf.Lerp(activeTarget.TargetRotation, activeTarget.InitialRotation, value);
 
-        if (isSnapping)
+        if (activeTarget.SnappingActive && activeTarget.RotationSnapAngle > 0f)
         {
-            if (rotationSnapAngle > 0f)
-            {
-                angle = initialRotation + Mathf.Round((angle - initialRotation) / rotationSnapAngle) * rotationSnapAngle;
-            }
+            angle = activeTarget.InitialRotation + Mathf.Round((angle - activeTarget.InitialRotation) / activeTarget.RotationSnapAngle) * activeTarget.RotationSnapAngle;
         }
 
-        switch(rotationDirection)
+        switch(activeTarget.RotationAxis)
         {
-            case SliderRotationDirection.X:
+            case SliderTarget.Axis.X:
                 targetObject.rotation = transformReference.rotation * Quaternion.Euler(angle, 0f, 0f);
                 break;
-            case SliderRotationDirection.Y:
+            case SliderTarget.Axis.Y:
                 targetObject.rotation = transformReference.rotation * Quaternion.Euler(0f, angle, 0f);
                 break;
-            case SliderRotationDirection.Z:
+            case SliderTarget.Axis.Z:
                 targetObject.rotation = transformReference.rotation * Quaternion.Euler(0f, 0f, angle);
                 break;
         }
 
-        float angleDifference = Mathf.Abs(Mathf.DeltaAngle(angle, targetRotation));
+        float angleDifference = Mathf.Abs(Mathf.DeltaAngle(angle, activeTarget.TargetRotation));
 
 
-        if (!targetReached && angleDifference <= targetTolerance)
+        if (!targetReached && angleDifference <= activeTarget.Tolerance)
         {
             targetReached = true;
             targetObject.DORotateQuaternion(targetObjectInitialRotation, 0.5f).SetEase(Ease.InOutSine);

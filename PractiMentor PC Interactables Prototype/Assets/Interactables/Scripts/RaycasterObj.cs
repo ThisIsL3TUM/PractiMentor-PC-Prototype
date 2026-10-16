@@ -32,6 +32,7 @@ public class RaycasterObj : MonoBehaviour
 
     private bool sliderCompleted;
 
+
     private enum Hand
     {
         Left,
@@ -334,7 +335,9 @@ public class RaycasterObj : MonoBehaviour
 
     private void UpdateInteractionSlider()
     {
-        bool canUseSlider = heldObjR != null && heldObjL != null && CanInteract(heldObjR) && CanInteract(heldObjL);
+        SliderTarget rightSliderTarget = heldObjR?.GetComponentInParent<SliderTarget>();
+
+        bool canUseSlider = heldObjR != null && heldObjL != null && CanInteract(heldObjR) && CanInteract(heldObjL) && rightSliderTarget != null;
 
         if (!canUseSlider)
         {
@@ -354,7 +357,10 @@ public class RaycasterObj : MonoBehaviour
             sliderController.TargetTransformReached -= OnSliderTargetReached;
             sliderController.TargetTransformReached += OnSliderTargetReached;
 
-            sliderController.SetTarget(heldObjR.transform);
+           SliderTarget sliderTarget = heldObjR.GetComponentInParent<SliderTarget>();
+
+            if(sliderTarget != null)
+                sliderController.SetTarget(sliderTarget);
         }
 
         if (playerController != null)
