@@ -345,7 +345,7 @@ public class RaycasterObj : MonoBehaviour
             sliderController.TargetTransformReached -= OnSliderTargetReached;
             sliderController.TargetTransformReached += OnSliderTargetReached;
 
-            sliderController.SetTarget(heldObjR.transform);
+            sliderController.SetTarget(heldObjR.transform);//this might screw over with the proper rotation
         }
 
         if (playerController != null)
