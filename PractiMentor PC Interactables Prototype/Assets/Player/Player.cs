@@ -82,9 +82,6 @@ public class Player : MonoBehaviour
 
     public void SetPlayerState(PlayerMode newMode)
     {
-        if (mode == newMode)
-            return;
-
         mode = newMode;
 
         if (mode == PlayerMode.SliderInteraction)

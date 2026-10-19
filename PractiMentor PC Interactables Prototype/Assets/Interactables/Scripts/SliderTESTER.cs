@@ -57,6 +57,8 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
         targetObjectInitialRotation = targetObject.rotation;
         hasInitialRotation = true;
         targetReached = false;
+
+        ResetSlider();
     }
 
     public void ClearTarget()
@@ -116,5 +118,11 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
             slider.DOKill();
             slider.DOValue(slider.maxValue, resetDuration).SetEase(Ease.InOutSine);
         }
+    }
+
+    public void ResetSlider()
+    {
+        if (slider != null) 
+            slider.SetValueWithoutNotify(slider.maxValue);
     }
 }

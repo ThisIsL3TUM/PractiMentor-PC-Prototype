@@ -21,6 +21,9 @@ public class RaycasterObj : MonoBehaviour
     [SerializeField] private Transform holdPosR;//for right hand
     [SerializeField] private Transform holdPosL;//for left hand
 
+    [SerializeField] private Transform sliderHoldPosR;
+    [SerializeField] private Transform sliderHoldPosL;
+
     //slots for the held object
     private GameObject heldObjR;
     private GameObject heldObjL;
@@ -31,6 +34,8 @@ public class RaycasterObj : MonoBehaviour
     [SerializeField] private SliderTESTER sliderController;
 
     private bool sliderCompleted;
+
+    private bool movingToSliderHands;
 
 
     private enum Hand
@@ -46,7 +51,13 @@ public class RaycasterObj : MonoBehaviour
 
     private Transform GetHoldPosition(Hand hand)
     {
-        return hand == Hand.Right ? holdPosR : holdPosL;
+        Transform normalTarget = hand == Hand.Right ? holdPosR : holdPosL;
+
+        Transform sliderTarget = hand == Hand.Right ? sliderHoldPosR : sliderHoldPosL;
+
+        bool isSliderMode = playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction;
+
+        return isSliderMode ? sliderTarget : normalTarget;
     }
 
     private void SetHeldObject(Hand hand, GameObject obj)
@@ -237,6 +248,9 @@ public class RaycasterObj : MonoBehaviour
     //fuction to move held grabbable
     void MoveObject(Hand hand)
     {
+        if (movingToSliderHands)
+            return;
+
         GameObject heldObject = GetHeldObject(hand);
 
         if (heldObject == null)
@@ -363,6 +377,8 @@ public class RaycasterObj : MonoBehaviour
                 sliderController.SetTarget(sliderTarget);
         }
 
+        bool enteringSliderMode = showSlider && playerController != null && playerController.CurrentMode != Player.PlayerMode.SliderInteraction;
+
         if (playerController != null)
         {
             playerController.SetPlayerState(
@@ -371,6 +387,9 @@ public class RaycasterObj : MonoBehaviour
                 : Player.PlayerMode.Navigate
                 );
         }
+
+        if (enteringSliderMode)
+            MoveHeldObjectsToSliderHands();
 
     }
 
@@ -391,5 +410,26 @@ public class RaycasterObj : MonoBehaviour
     {
         Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
         return grabbable != null && grabbable.CanThisInteract;
+    }
+
+    private void MoveHeldObjectsToSliderHands()
+    {
+        movingToSliderHands = true;
+
+        DG.Tweening.Sequence sequence = DG.Tweening.DOTween.Sequence();
+
+        if (heldObjR != null && sliderHoldPosR != null)
+        {
+            sequence.Join(heldObjR.transform.DOMove(sliderHoldPosR.position, 0.5f));
+        }
+
+        if (heldObjL != null && sliderHoldPosL != null)
+        {
+            sequence.Join(heldObjL.transform.DOMove(sliderHoldPosL.position, 0.5f));
+
+        }
+        
+        sequence.SetEase(Ease.InOutSine);
+        sequence.OnComplete(() => movingToSliderHands = false);
     }
 }
