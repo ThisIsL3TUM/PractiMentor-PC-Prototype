@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using UnityEngine.EventSystems;
+using NUnit.Framework.Constraints;
 
 public class SliderTESTER : MonoBehaviour, IPointerUpHandler
 {
@@ -12,6 +13,12 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
     [SerializeField] private Transform transformReference;//for both rotation and position
     [SerializeField] private float sliderMoveChargeRate = 1f;
     [SerializeField] private float resetDuration = 0.5f;
+
+    private Vector3 startingPosition;
+    private Vector3 startingWorldPosition;
+
+    private Quaternion startingRotation;
+    private Vector3 startingScale;
 
     //elements related to general rotation
     [Header("Rotation Set Up")]
@@ -42,9 +49,11 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
     private bool targetReached;
     [SerializeField] private float targetTolerance = 1f;
 
+    private float startingValue;
+
     private void Awake()
     {
-        slider.onValueChanged.AddListener(RotateTarget);
+        slider.onValueChanged.AddListener(UpdateTargetTransform);
     }
     
     public void SetTarget(SliderTarget target)
@@ -54,13 +63,51 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
 
         activeTarget = target;
         targetObject = target.transform;
-        targetObjectInitialRotation = targetObject.rotation;
+
+        startingPosition = targetObject.localPosition;
+        startingWorldPosition = targetObject.position;
+        startingRotation = targetObject.localRotation;
+        startingScale = targetObject.localScale;
+
+        startingValue = GetStartingValue();
+        
         hasInitialRotation = true;
         targetReached = false;
 
         ResetSlider();
     }
 
+    private float GetStartingValue()
+    {
+        switch (activeTarget.Property)
+        {
+            case SliderTarget.TransformProperty.Position:
+                return GetAxisValue(startingPosition);
+            case SliderTarget.TransformProperty.Rotation:
+                return GetAxisValue(startingRotation.eulerAngles);
+            case SliderTarget.TransformProperty.Scale:
+                return GetAxisValue(startingScale);
+
+            default:
+                return 0f;
+        }
+    }
+
+    private float GetAxisValue(Vector3 value)
+    {
+        switch (activeTarget.TransformAxis)
+        {
+            case SliderTarget.Axis.X:
+                return value.x;
+            case SliderTarget.Axis.Y:
+                return value.y;
+            case SliderTarget.Axis.Z:
+                return value.z;
+
+            default:
+                return 0f;
+        }
+    }
     public void ClearTarget()
     {
         activeTarget = null;
@@ -69,46 +116,118 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
         targetReached = false;
     }
 
-    private void RotateTarget(float value)
+    private void UpdateTargetTransform(float value)
     {
-        if (activeTarget == null)
+        if (activeTarget == null || targetObject == null)
             return;
 
-        float angle = Mathf.Lerp(activeTarget.TargetRotation, activeTarget.InitialRotation, value);
+        float normalizedValue = Mathf.InverseLerp(slider.minValue, slider.maxValue, value);
 
-        if (activeTarget.SnappingActive && activeTarget.RotationSnapAngle > 0f)
+        float progress = 1f - normalizedValue;
+
+        float currentValue = Mathf.Lerp(startingValue, activeTarget.TargetValue, progress);
+
+        if (activeTarget.Property == SliderTarget.TransformProperty.Rotation && activeTarget.SnappingActive && activeTarget.RotationSnapAngle > 0f)
         {
-            angle = activeTarget.InitialRotation + Mathf.Round((angle - activeTarget.InitialRotation) / activeTarget.RotationSnapAngle) * activeTarget.RotationSnapAngle;
+            currentValue = Mathf.Round((currentValue/activeTarget.RotationSnapAngle) * activeTarget.RotationSnapAngle);
         }
 
-        switch(activeTarget.RotationAxis)
+        switch (activeTarget.Property)
         {
-            case SliderTarget.Axis.X:
-                targetObject.rotation = transformReference.rotation * Quaternion.Euler(angle, 0f, 0f);
+            case SliderTarget.TransformProperty.Position:
+                ApplyPosition(currentValue);
                 break;
-            case SliderTarget.Axis.Y:
-                targetObject.rotation = transformReference.rotation * Quaternion.Euler(0f, angle, 0f);
+            case SliderTarget.TransformProperty.Rotation:
+                ApplyRotation(currentValue);
                 break;
-            case SliderTarget.Axis.Z:
-                targetObject.rotation = transformReference.rotation * Quaternion.Euler(0f, 0f, angle);
+            case SliderTarget.TransformProperty.Scale:
+                ApplyScale(currentValue); 
                 break;
         }
 
-        float angleDifference = Mathf.Abs(Mathf.DeltaAngle(angle, activeTarget.TargetRotation));
+        float difference = Mathf.Abs(currentValue - activeTarget.TargetValue);
 
-
-        if (!targetReached && angleDifference <= activeTarget.Tolerance)
+        if (!targetReached && difference <= activeTarget.Tolerance)
         {
             targetReached = true;
-            targetObject.DORotateQuaternion(targetObjectInitialRotation, 0.5f).SetEase(Ease.InOutSine);
-            TargetTransformReached?.Invoke();
 
+            RestoreStartingTransform();
+            TargetTransformReached?.Invoke();
         }
+    }
+
+    private void ApplyPosition(float value)
+    {
+        Vector3 position = startingPosition;
+
+        float offset = value - activeTarget.InitialValue;
+
+        switch (activeTarget.TransformAxis)
+        {
+            case SliderTarget.Axis.X:
+                position.x += offset;
+                break;
+            case SliderTarget.Axis.Y:
+                position.y += offset;
+                break;
+            case SliderTarget.Axis.Z:
+                position.z += offset;
+                break;
+        }
+
+        if(activeTarget.UseLocalSpace)
+            targetObject.localPosition = position;
+        else
+            targetObject.position = position;
+    }
+    private void ApplyRotation(float value)
+    {
+        Vector3 rotation = startingRotation.eulerAngles;
+
+        switch(activeTarget.TransformAxis)
+        {
+            case SliderTarget.Axis.X:
+                rotation.x = value;
+                break;
+            case SliderTarget.Axis.Y:
+                rotation.y = value;
+                break;
+            case SliderTarget.Axis.Z:
+                rotation.z = value;
+                break;
+        }
+
+        Quaternion newRotation = Quaternion.Euler(rotation);
+
+        if (activeTarget.UseLocalSpace)
+            targetObject.localRotation = newRotation;
+        else
+            targetObject.rotation = newRotation;
+    }
+
+    private void ApplyScale(float value)
+    {
+        Vector3 scale = startingScale;
+
+        switch (activeTarget.TransformAxis)
+        {
+            case SliderTarget.Axis.X:
+                scale.x = value;
+                break;
+            case SliderTarget.Axis.Y:
+                scale.y = value;
+                break;
+            case SliderTarget.Axis.Z:
+                scale.z = value;
+                break;
+        }
+
+        targetObject.localScale = scale;
     }
 
     private void OnDestroy()
     {
-        slider.onValueChanged.RemoveListener(RotateTarget);
+        slider.onValueChanged.RemoveListener(UpdateTargetTransform);
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -124,5 +243,16 @@ public class SliderTESTER : MonoBehaviour, IPointerUpHandler
     {
         if (slider != null) 
             slider.SetValueWithoutNotify(slider.maxValue);
+    }
+
+    public void RestoreStartingTransform()
+    {
+        if (activeTarget.UseLocalSpace)
+            targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutSine);
+        else
+            targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutSine);
+
+        targetObject.DOLocalRotateQuaternion(startingRotation, resetDuration).SetEase(Ease.InOutSine);
+        targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutSine);
     }
 }
