@@ -16,6 +16,11 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     public Color curveColor = new Color(0.4f, 0.85f, 1f); //aliceBlue
     public int curveSegments = 32;
 
+    [Header("Track Appearance")]
+    public float backgroundTrackWidth = 10f;
+    public float curveTrackWidth = 4f;
+    public float knobSize = 20f;
+
     private VisualElement curveElement;
     private VisualElement knobElement;
 
@@ -48,13 +53,17 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         };
 
         knobElement.style.position = Position.Absolute;
-        knobElement.style.width = 20;
-        knobElement.style.height = 20;
+        knobElement.style.width = knobSize;
+        knobElement.style.height = knobSize;
+
+        float radius = knobSize * 0.5f;
+
         knobElement.style.backgroundColor = curveColor;
-        knobElement.style.borderTopLeftRadius = 10;
-        knobElement.style.borderTopRightRadius = 10;
-        knobElement.style.borderBottomLeftRadius = 10;
-        knobElement.style.borderBottomRightRadius = 10;
+
+        knobElement.style.borderTopLeftRadius = radius;
+        knobElement.style.borderTopRightRadius = radius;
+        knobElement.style.borderBottomLeftRadius = radius;
+        knobElement.style.borderBottomRightRadius = radius;
 
         hierarchy.Add(knobElement);
 
@@ -169,8 +178,8 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
         painter.lineCap = LineCap.Round;
 
-        DrawBezierPath(painter, trackColor, 10f);
-        DrawBezierPath(painter, curveColor, 4f);
+        DrawBezierPath(painter, trackColor, backgroundTrackWidth);
+        DrawBezierPath(painter, curveColor, curveTrackWidth);
     }
 
     private void DrawBezierPath(Painter2D painter, Color color, float width)
@@ -205,16 +214,29 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         if (curveElement.contentRect.width <= 0f)
             return;
 
+        knobElement.style.width = knobSize;
+        knobElement.style.height = knobSize;
+
+        float radius = knobSize * 0.5f;
+
+        knobElement.style.backgroundColor = curveColor;
+
+        knobElement.style.borderTopLeftRadius = radius;
+        knobElement.style.borderTopRightRadius = radius;
+        knobElement.style.borderBottomLeftRadius = radius;
+        knobElement.style.borderBottomRightRadius = radius;
+
         float normalizedValue = Mathf.InverseLerp(lowValue, highValue, value);
 
         Vector2 normalizedPosition = EvaluateBezier(normalizedValue);
 
         Vector2 pixelPosition = ToPixelPosition(normalizedPosition);
 
-        const float knobSize = 20f;
+        float halfKnobSize = knobSize * 0.5f;
 
-        knobElement.style.left = pixelPosition.x - knobSize * 0.5f;
-        knobElement.style.top = pixelPosition.y - knobSize * 0.5f;
+        knobElement.style.left = pixelPosition.x - halfKnobSize;
+        knobElement.style.top = pixelPosition.y - halfKnobSize;
+
     }
 
 }
