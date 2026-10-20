@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using DG.Tweening;
 
 public class BezierSlider : UnityEngine.UIElements.Slider
 {
     [Header("Reset")]
     public float resetDelay = 0.75f;
+    public float resetDuration = 0.75f;
     public float resetValue = 1f;
 
     [Header("Brezier Shape")]
@@ -25,6 +27,8 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     private VisualElement knobElement;
 
     private int resetVersion;
+
+    private Tween resetTween;
 
     public BezierSlider(string label = null) : base(label)
     {
@@ -92,6 +96,9 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         if (evt.button != 0)
             return;
 
+        resetTween.Kill();
+        resetTween = null;
+
         resetVersion++;
 
         this.CapturePointer(evt.pointerId);
@@ -137,15 +144,22 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
     private void ScheduleReset()
     {
+        resetTween?.Kill();
+
         int scheduledVersion = ++resetVersion;
 
-        schedule.Execute(() =>
+        resetTween = DOTween.To(() => value,
+            newValue => value = newValue,
+            resetValue,
+            resetDuration
+        )
+        .SetDelay(resetDelay)
+        .SetEase(Ease.InOutSine)
+        .OnComplete(() =>
         {
-            if (scheduledVersion != resetVersion)
-                return;
-
-            value = resetValue;
-        }).StartingIn((long)(resetDelay * 1000f));
+            if (scheduledVersion == resetVersion)
+                resetTween = null;
+        });
     }
     private Vector2 EvaluateBezier(float t)
     {

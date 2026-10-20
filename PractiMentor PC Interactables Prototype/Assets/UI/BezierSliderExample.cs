@@ -42,12 +42,6 @@ public class BezierSliderExample : MonoBehaviour
 
         root.Add(slider);
 
-        slider.RegisterValueChangedCallback(OnSliderValueChanged);
     }
     
-    private void OnSliderValueChanged(ChangeEvent<float> changeEvent)
-    {
-        float normalizedValue = Mathf.InverseLerp(slider.lowValue, slider.highValue, changeEvent.newValue);
-        Debug.Log($"Slider value: {changeEvent.newValue}");
-    }
 }

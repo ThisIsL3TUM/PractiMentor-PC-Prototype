@@ -1,7 +1,6 @@
 using DG.Tweening;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
 //this handles too many things (raycast, hovering, picking objs, movement, socket stuff), needs to be broken down 
 public class RaycasterObj : MonoBehaviour
@@ -30,12 +29,13 @@ public class RaycasterObj : MonoBehaviour
 
     //slider reference
     [Header("Slider Set Up")]
-    [SerializeField] private Slider interactionSlider;
-    [SerializeField] private SliderTESTER sliderController;
+    [SerializeField] private BezierSliderInteraction sliderController;
 
     private bool sliderCompleted;
 
     private bool movingToSliderHands;
+
+    private bool restoringSliderTarget;
 
 
     private enum Hand
@@ -101,8 +101,8 @@ public class RaycasterObj : MonoBehaviour
     {
         playerCamera = Camera.main;
 
-        if(interactionSlider != null)
-            interactionSlider.gameObject.SetActive(false);
+        if(sliderController != null)
+            sliderController.SetVisible(false);
     }
     private void Update()
     {
@@ -248,7 +248,7 @@ public class RaycasterObj : MonoBehaviour
     //fuction to move held grabbable
     void MoveObject(Hand hand)
     {
-        if (movingToSliderHands)
+        if (movingToSliderHands || restoringSliderTarget)
             return;
 
         GameObject heldObject = GetHeldObject(hand);
@@ -357,16 +357,19 @@ public class RaycasterObj : MonoBehaviour
         {
             sliderCompleted = false;
 
-            sliderController.TargetTransformReached -= OnSliderTargetReached;
-            sliderController.ClearTarget();
+            if (sliderController != null)
+            {
+                sliderController.TargetTransformReached -= OnSliderTargetReached;
+                sliderController.ClearTarget();
+            }
         }
 
         bool showSlider = canUseSlider && !sliderCompleted;
 
-        if (interactionSlider != null)
-            interactionSlider.gameObject.SetActive(showSlider);
+        if (sliderController != null)
+            sliderController.SetVisible(showSlider);
 
-        if (showSlider)
+        if (showSlider && sliderController != null)
         {
             sliderController.TargetTransformReached -= OnSliderTargetReached;
             sliderController.TargetTransformReached += OnSliderTargetReached;
@@ -396,13 +399,17 @@ public class RaycasterObj : MonoBehaviour
     private void OnSliderTargetReached()
     {
         sliderCompleted = true;
+        restoringSliderTarget = true;
 
-        if(interactionSlider != null)
-            interactionSlider.gameObject.SetActive(false);
+        if (sliderController != null)
+        {
+            sliderController.SetVisible(false);
+            sliderController.ClearTarget();
 
-        sliderController.ClearTarget();
+            DOVirtual.DelayedCall(sliderController.ResetDuration,() => restoringSliderTarget = false);
+        }
 
-        if(playerController != null)
+        if (playerController != null)
             playerController.SetPlayerState(Player.PlayerMode.Navigate);
     }
 
