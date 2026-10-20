@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/BezierSlider.uss?fileID=7433441132597879392&amp;guid=fbfc13c398a0b30419b8c2e6df7eb92a&amp;type=3#BezierSlider"/>
+</ui:UXML>

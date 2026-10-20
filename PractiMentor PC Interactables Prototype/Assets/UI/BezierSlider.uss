@@ -1,0 +1,24 @@
+.bezier-slider {
+	min-height: 80px;
+	position: relative;
+}
+
+.bezier-slider .unity-base-slider__tracker{
+	opacity: 0;
+}
+
+.bezier-slider .unity-base-slider__dragger{
+	opacity: 0;
+}
+
+.bezier-slider #bezier-curve {
+	position: absolute;
+	left : 0;
+	right : 0;
+	top : 0;
+	bottom : 0;
+}
+
+.bezier-slider{
+	width: 500px;
+}
