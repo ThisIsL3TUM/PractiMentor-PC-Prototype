@@ -37,6 +37,8 @@ public class RaycasterObj : MonoBehaviour
 
     private bool restoringSliderTarget;
 
+    private bool sliderReady;
+
 
     private enum Hand
     {
@@ -361,48 +363,47 @@ public class RaycasterObj : MonoBehaviour
         if (!canUseSlider)
         {
             sliderCompleted = false;
+            sliderReady = false;
 
             if (sliderController != null)
             {
                 sliderController.TargetTransformReached -= OnSliderTargetReached;
                 sliderController.ClearTarget();
+                sliderController.SetVisible(false);
             }
+
+            if (playerController != null)
+                playerController.SetPlayerState(Player.PlayerMode.Navigate);
+
+            return;
         }
 
-        bool showSlider = canUseSlider && !sliderCompleted;
+        bool enteringSliderMode = !sliderCompleted && !movingToSliderHands && playerController != null && playerController.CurrentMode != Player.PlayerMode.SliderInteraction;
+
+        if (enteringSliderMode)
+        {
+            sliderReady = false;
+
+            playerController.SetPlayerState(Player.PlayerMode.SliderInteraction);
+
+            MoveHeldObjectsToSliderHands();
+        }
+
+        bool showSlider =!sliderCompleted && sliderReady && !movingToSliderHands;
 
         if (sliderController != null)
             sliderController.SetVisible(showSlider);
 
-        if (showSlider && sliderController != null)
-        {
-            sliderController.TargetTransformReached -= OnSliderTargetReached;
-            sliderController.TargetTransformReached += OnSliderTargetReached;
+        if (!showSlider || sliderController == null)
+            return;
 
-           SliderTarget sliderTarget = heldObjR.GetComponentInParent<SliderTarget>();
+        sliderController.TargetTransformReached -= OnSliderTargetReached;
+        sliderController.TargetTransformReached += OnSliderTargetReached;
 
-            if(sliderTarget != null)
-            {
-                sliderController.SetTarget(sliderTarget);
-                sliderController.FollowObjectOnScreen(heldObjR.transform, playerCamera, new Vector2(120f, 0f));
-            }
+        sliderController.SetTarget(rightSliderTarget);
 
-            //sliderController.FollowObjectOnScreen(heldObjR.transform, playerCamera, new Vector2(20f, 0f));
-        }
-
-        bool enteringSliderMode = showSlider && playerController != null && playerController.CurrentMode != Player.PlayerMode.SliderInteraction;
-
-        if (playerController != null)
-        {
-            playerController.SetPlayerState(
-                showSlider
-                ? Player.PlayerMode.SliderInteraction
-                : Player.PlayerMode.Navigate
-                );
-        }
-
-        if (enteringSliderMode)
-            MoveHeldObjectsToSliderHands();
+        // Use the stable hand anchor, not the object being manipulated.
+        sliderController.FollowObjectOnScreen(sliderHoldPosR,playerCamera,new Vector2(120f, 0f));
 
     }
 
@@ -451,21 +452,30 @@ public class RaycasterObj : MonoBehaviour
     private void MoveHeldObjectsToSliderHands()
     {
         movingToSliderHands = true;
+        sliderReady = false;
 
         DG.Tweening.Sequence sequence = DG.Tweening.DOTween.Sequence();
 
         if (heldObjR != null && sliderHoldPosR != null)
         {
-            sequence.Join(heldObjR.transform.DOMove(sliderHoldPosR.position, 0.5f));
+            heldObjR.transform.DOKill();
+
+            sequence.Join(heldObjR.transform.DOMove(sliderHoldPosR.position, 0.5f).SetEase(Ease.InOutCirc)
+            );
         }
 
         if (heldObjL != null && sliderHoldPosL != null)
         {
-            sequence.Join(heldObjL.transform.DOMove(sliderHoldPosL.position, 0.5f));
+            heldObjL.transform.DOKill();
 
+            sequence.Join(heldObjL.transform.DOMove(sliderHoldPosL.position, 0.5f).SetEase(Ease.InOutCirc)
+            );
         }
-        
-        sequence.SetEase(Ease.InOutCirc);
-        sequence.OnComplete(() => movingToSliderHands = false);
+
+        sequence.OnComplete(() =>
+        {
+            movingToSliderHands = false;
+            sliderReady = true;
+        });
     }
 }
