@@ -20,6 +20,7 @@ public class BezierSliderInteraction : MonoBehaviour
     private Vector3 startingPosition;
     private Vector3 startingWorldPosition;
     private Quaternion startingRotation;
+    private Quaternion startingWorldRotation;
     private Vector3 startingScale;
 
     private float startingValue;
@@ -108,6 +109,7 @@ public class BezierSliderInteraction : MonoBehaviour
         startingPosition = targetObject.localPosition;
         startingWorldPosition = targetObject.position;
         startingRotation = targetObject.localRotation;
+        startingWorldRotation = targetObject.rotation;
         startingScale = targetObject.localScale;
 
         startingValue = GetStartingValue();
@@ -141,38 +143,52 @@ public class BezierSliderInteraction : MonoBehaviour
         if (!hasTarget || activeTarget == null || targetObject == null)
             return;
 
-        float normalizedValue = Mathf.InverseLerp(slider.lowValue, slider.highValue, evt.newValue);
+        float normalizedValue = Mathf.InverseLerp(slider.lowValue,slider.highValue,evt.newValue);
 
         float progress = 1f - normalizedValue;
-
-        float currentValue = Mathf.Lerp(startingValue, activeTarget.TargetValue, progress);
-
-        if (activeTarget.Property == SliderTarget.TransformProperty.Rotation && activeTarget.SnappingActive && activeTarget.RotationSnapAngle > 0f)
-        {
-            currentValue = Mathf.Round((currentValue / activeTarget.RotationSnapAngle) * activeTarget.RotationSnapAngle);
-        }
+        float currentValue;
 
         switch (activeTarget.Property)
         {
             case SliderTarget.TransformProperty.Position:
+                currentValue = Mathf.Lerp(activeTarget.InitialValue,activeTarget.TargetValue,progress);
                 ApplyPosition(currentValue);
                 break;
+
             case SliderTarget.TransformProperty.Rotation:
+                float targetAngle = startingValue +Mathf.DeltaAngle(startingValue,activeTarget.TargetValue);
+                currentValue = Mathf.Lerp(startingValue,targetAngle,progress);
+
+                if (activeTarget.SnappingActive &&
+                    activeTarget.RotationSnapAngle > 0f)
+                {
+                    float angleFromStart = currentValue - startingValue;
+
+                    currentValue = startingValue + Mathf.Round(angleFromStart / activeTarget.RotationSnapAngle) * activeTarget.RotationSnapAngle;
+                }
+
                 ApplyRotation(currentValue);
                 break;
+
             case SliderTarget.TransformProperty.Scale:
+                currentValue = Mathf.Lerp(startingValue, activeTarget.TargetValue, progress);
+
                 ApplyScale(currentValue);
                 break;
+
+            default:
+                return;
         }
 
-        float difference = Mathf.Abs(currentValue - activeTarget.TargetValue);
+        float difference = activeTarget.Property ==
+            SliderTarget.TransformProperty.Rotation
+            ? Mathf.Abs(Mathf.DeltaAngle(currentValue, activeTarget.TargetValue))
+            : Mathf.Abs(currentValue - activeTarget.TargetValue);
 
         if (!targetReached && difference <= activeTarget.Tolerance)
         {
             targetReached = true;
-
-            RestoreStartingTransform();
-
+            //RestoreStartingTransform();
             TargetTransformReached?.Invoke();
         }
     }
@@ -185,7 +201,10 @@ public class BezierSliderInteraction : MonoBehaviour
                 return GetAxisValue(startingPosition);
 
             case SliderTarget.TransformProperty.Rotation:
-                return GetAxisValue(startingRotation.eulerAngles);
+                return GetAxisValue(activeTarget.UseLocalSpace
+            ? startingRotation.eulerAngles
+            : startingWorldRotation.eulerAngles
+            );
 
             case SliderTarget.TransformProperty.Scale:
                 return GetAxisValue(startingScale);
@@ -215,7 +234,9 @@ public class BezierSliderInteraction : MonoBehaviour
 
     private void ApplyPosition(float value)
     {
-        Vector3 position = startingPosition;
+        Vector3 position = activeTarget.UseLocalSpace
+        ? startingPosition
+        : startingWorldPosition;
 
         float offset = value - activeTarget.InitialValue;
 
@@ -242,7 +263,9 @@ public class BezierSliderInteraction : MonoBehaviour
 
     private void ApplyRotation(float value)
     {
-        Vector3 rotation = startingRotation.eulerAngles;
+        Vector3 rotation = activeTarget.UseLocalSpace
+        ? startingRotation.eulerAngles
+        : startingWorldRotation.eulerAngles;
 
         switch (activeTarget.TransformAxis)
         {
@@ -299,21 +322,37 @@ public class BezierSliderInteraction : MonoBehaviour
 
     public void RestoreStartingTransform()
     {
-        if (targetObject == null)
+        if (targetObject == null || activeTarget == null)
             return;
 
-        if (activeTarget.UseLocalSpace)
+        switch (activeTarget.Property)
         {
-            targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutCirc);
-        }
-        else
-        {
-            targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutCirc);
-        }
+            case SliderTarget.TransformProperty.Position:
+                if (activeTarget.UseLocalSpace)
+                {
+                    targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutCirc);
+                }
+                else
+                {
+                    targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutCirc);
+                }
+                break;
 
-        targetObject.DOLocalRotateQuaternion(startingRotation, resetDuration).SetEase(Ease.InOutCirc);
+            case SliderTarget.TransformProperty.Rotation:
+                if (activeTarget.UseLocalSpace)
+                {
+                    targetObject.DOLocalRotateQuaternion(startingRotation,resetDuration).SetEase(Ease.InOutCirc);
+                }
+                else
+                {
+                    targetObject.DORotateQuaternion(startingWorldRotation,resetDuration).SetEase(Ease.InOutCirc);
+                }
+                break;
 
-        targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutCirc);
+            case SliderTarget.TransformProperty.Scale:
+                targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutCirc);
+                break;
+        }
     }
 
     public void FollowObjectOnScreen(Transform target, Camera camera, Vector2 offset)

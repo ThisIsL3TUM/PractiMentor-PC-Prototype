@@ -256,6 +256,11 @@ public class RaycasterObj : MonoBehaviour
         if (heldObject == null)
             return;
 
+        bool isSliderObj = hand == Hand.Right && playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction && heldObject.GetComponentInParent<SliderTarget>() != null;
+
+        if (isSliderObj)
+            return;
+
         heldObject.transform.position = GetHoldPosition(hand).position; 
     }
 
@@ -410,12 +415,31 @@ public class RaycasterObj : MonoBehaviour
         {
             sliderController.SetVisible(false);
             sliderController.ClearTarget();
-
-            DOVirtual.DelayedCall(sliderController.ResetDuration,() => restoringSliderTarget = false);
         }
+
+        MoveHeldObjectsBackToNormalHands();
 
         if (playerController != null)
             playerController.SetPlayerState(Player.PlayerMode.Navigate);
+    }
+
+    private void MoveHeldObjectsBackToNormalHands()
+    {
+        DG.Tweening.Sequence sequence = DOTween.Sequence();
+
+        if (heldObjR != null && holdPosR != null)
+        {
+            sequence.Join(heldObjR.transform.DOMove(holdPosR.position, 0.5f).SetEase(Ease.InOutCirc));
+        }
+
+        if (heldObjL != null && holdPosL != null)
+        {
+            sequence.Join(heldObjL.transform.DOMove(holdPosL.position, 0.5f).SetEase(Ease.InOutCirc));
+        }
+
+        sequence.OnComplete(() => {
+            restoringSliderTarget = false;
+        });
     }
 
     private bool CanInteract (GameObject obj)
