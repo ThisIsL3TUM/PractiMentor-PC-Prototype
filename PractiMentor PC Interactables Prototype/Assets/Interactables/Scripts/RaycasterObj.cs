@@ -377,7 +377,12 @@ public class RaycasterObj : MonoBehaviour
            SliderTarget sliderTarget = heldObjR.GetComponentInParent<SliderTarget>();
 
             if(sliderTarget != null)
+            {
                 sliderController.SetTarget(sliderTarget);
+                sliderController.FollowObjectOnScreen(heldObjR.transform, playerCamera, new Vector2(120f, 0f));
+            }
+
+            //sliderController.FollowObjectOnScreen(heldObjR.transform, playerCamera, new Vector2(20f, 0f));
         }
 
         bool enteringSliderMode = showSlider && playerController != null && playerController.CurrentMode != Player.PlayerMode.SliderInteraction;
@@ -436,7 +441,7 @@ public class RaycasterObj : MonoBehaviour
 
         }
         
-        sequence.SetEase(Ease.InOutSine);
+        sequence.SetEase(Ease.InOutCirc);
         sequence.OnComplete(() => movingToSliderHands = false);
     }
 }

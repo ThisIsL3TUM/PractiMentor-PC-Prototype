@@ -44,13 +44,13 @@ public class BezierSliderInteraction : MonoBehaviour
             resetDelay = 0.5f,
             resetDuration = 1.5f,
 
-            controlPoint1 = new Vector2(0.3f, 0.2f),
-            controlPoint2 = new Vector2(0.7f, 0.9f),
+            controlPoint1 = new Vector2(1f, 0.25f),
+            controlPoint2 = new Vector2(1f, 0.75f),
             curveSegments = 32,
 
-            backgroundTrackWidth = 16f,
-            curveTrackWidth = 7f,
-            knobSize = 30f,
+            backgroundTrackWidth = 64f,
+            curveTrackWidth = 28f,
+            knobSize = 60f,
 
             curveColor = new Color(0.4f, 0.85f, 1f),
             trackColor = new Color(1f, 0.94f, 0.85f)
@@ -304,16 +304,49 @@ public class BezierSliderInteraction : MonoBehaviour
 
         if (activeTarget.UseLocalSpace)
         {
-            targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutSine);
+            targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutCirc);
         }
         else
         {
-            targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutSine);
+            targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutCirc);
         }
 
-        targetObject.DOLocalRotateQuaternion(startingRotation, resetDuration).SetEase(Ease.InOutSine);
+        targetObject.DOLocalRotateQuaternion(startingRotation, resetDuration).SetEase(Ease.InOutCirc);
 
-        targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutSine);
+        targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutCirc);
+    }
+
+    public void FollowObjectOnScreen(Transform target, Camera camera, Vector2 offset)
+    {
+        if (slider == null || target == null || camera == null)
+            return;
+
+        if (slider.panel == null)
+            return;
+
+        Vector3 screenPosition = camera.WorldToScreenPoint(target.position);
+
+        if (screenPosition.z <= 0)
+            return;
+
+        VisualElement panelRoot = slider.panel.visualTree;
+
+        float panelWidth = panelRoot.resolvedStyle.width;
+        float panelHeight = panelRoot.resolvedStyle.height;
+
+        if (panelWidth <= 0f || panelHeight <= 0f)
+            return;
+
+        float panelX =
+            screenPosition.x / Screen.width * panelWidth;
+
+        float panelY = (1f - screenPosition.y / Screen.height) * panelHeight;
+
+        float sliderHeight = slider.resolvedStyle.height;
+
+        slider.style.position = Position.Absolute;
+        slider.style.left = panelX + offset.x;
+        slider.style.top = panelY - sliderHeight * 0.5f + offset.y;
     }
     private void OnDisable()
     {
@@ -326,4 +359,5 @@ public class BezierSliderInteraction : MonoBehaviour
         if (targetObject != null)
             targetObject.DOKill();
     }
+
 }

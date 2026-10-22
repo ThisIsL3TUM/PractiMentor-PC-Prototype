@@ -1,6 +1,9 @@
 .bezier-slider {
-	min-height: 80px;
-	position: relative;
+	width: 180px;
+	height: 180px;
+	min-height: 180px;
+	flex-grow: 0;
+	position: absolute;
 }
 
 .bezier-slider .unity-base-slider__tracker{
@@ -17,8 +20,4 @@
 	right : 0;
 	top : 0;
 	bottom : 0;
-}
-
-.bezier-slider{
-	width: 500px;
 }

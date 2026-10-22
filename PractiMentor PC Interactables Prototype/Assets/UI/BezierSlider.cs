@@ -62,7 +62,7 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
         float radius = knobSize * 0.5f;
 
-        knobElement.style.backgroundColor = curveColor;
+        knobElement.style.backgroundColor = Color.cadetBlue;
 
         knobElement.style.borderTopLeftRadius = radius;
         knobElement.style.borderTopRightRadius = radius;
@@ -103,7 +103,7 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
         this.CapturePointer(evt.pointerId);
 
-        SetValueFromPointer(evt.localPosition.x);
+        SetValueFromPointer(evt.localPosition);
 
         evt.StopPropagation();
     }
@@ -113,7 +113,7 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         if (!this.HasPointerCapture(evt.pointerId))
             return;
 
-        SetValueFromPointer(evt.localPosition.x);
+        SetValueFromPointer(evt.localPosition);
 
         evt.StopPropagation();
     }
@@ -130,14 +130,15 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         ScheduleReset();
     }
 
-    private void SetValueFromPointer(float pointerX)
+    private void SetValueFromPointer(Vector2 pointerPosition)
     {
-        float width = contentRect.width;
+        //float width = contentRect.width;
+        float height = contentRect.height;
 
-        if (width <= 0f)
+        if (height <= 0f)
             return;
 
-        float normalizedValue = Mathf.Clamp01(pointerX / width);
+        float normalizedValue = 1f - Mathf.Clamp01(pointerPosition.y / height);
 
         value = Mathf.Lerp(lowValue, highValue, normalizedValue);
     }
@@ -154,7 +155,7 @@ public class BezierSlider : UnityEngine.UIElements.Slider
             resetDuration
         )
         .SetDelay(resetDelay)
-        .SetEase(Ease.InOutSine)
+        .SetEase(Ease.InOutCirc)
         .OnComplete(() =>
         {
             if (scheduledVersion == resetVersion)
@@ -163,8 +164,13 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     }
     private Vector2 EvaluateBezier(float t)
     {
-        Vector2 start = new(0f, 0.5f);
-        Vector2 end = new(1f, 0.5f);
+        //for horizontal path
+        //Vector2 start = new(0f, 0.5f);
+        //Vector2 end = new(1f, 0.5f);
+
+        //for vertical path
+        Vector2 start = new(0.5f, 0f);
+        Vector2 end = new(0.5f, 1f);
 
         float inverse = 1f - t;
 
