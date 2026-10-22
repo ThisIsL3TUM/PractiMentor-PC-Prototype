@@ -9588,7 +9588,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5428843088392184375, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: useLocalSpace
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5428843088392184375, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: snappingActive

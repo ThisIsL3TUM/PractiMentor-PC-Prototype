@@ -188,7 +188,7 @@ public class BezierSliderInteraction : MonoBehaviour
         if (!targetReached && difference <= activeTarget.Tolerance)
         {
             targetReached = true;
-            //RestoreStartingTransform();
+            RestoreStartingTransform();
             TargetTransformReached?.Invoke();
         }
     }

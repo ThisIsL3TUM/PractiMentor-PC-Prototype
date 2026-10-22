@@ -223,22 +223,21 @@ public class RaycasterObj : MonoBehaviour
         if(playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction)
             return;
 
-        if (pickUpObj == null)
+        if (pickUpObj == null || GetHeldObject(hand) != null)
             return;
 
-        if (GetHeldObject(hand) != null)
+        GameObject grabbableRoot = GetGrabbableRoot(pickUpObj);
+
+        if (!CanUseHand(grabbableRoot, hand)) 
             return;
 
-        if(!CanUseHand(pickUpObj, hand)) 
-            return;
-
-        SetHeldObject(hand, pickUpObj);
+        SetHeldObject(hand, grabbableRoot);
 
         Transform holdPosition = GetHoldPosition(hand);
-        pickUpObj.transform.DOMove(endValue: holdPosition.position, 0.5f).SetEase(Ease.InOutSine);
-        pickUpObj.layer = layerNumber;
+        grabbableRoot.transform.DOMove(endValue: holdPosition.position, 0.5f).SetEase(Ease.InOutSine);
+        grabbableRoot.layer = layerNumber;
 
-        Collider objectCollider = pickUpObj.GetComponent<Collider>();
+        Collider objectCollider = grabbableRoot.GetComponent<Collider>();
         Collider playerCollider = player.GetComponent<Collider>();
 
         if (objectCollider != null && playerCollider != null)
@@ -253,17 +252,15 @@ public class RaycasterObj : MonoBehaviour
         if (movingToSliderHands || restoringSliderTarget)
             return;
 
+        if (playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction)
+            return;
+
         GameObject heldObject = GetHeldObject(hand);
 
         if (heldObject == null)
             return;
 
-        bool isSliderObj = hand == Hand.Right && playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction && heldObject.GetComponentInParent<SliderTarget>() != null;
-
-        if (isSliderObj)
-            return;
-
-        heldObject.transform.position = GetHoldPosition(hand).position; 
+        heldObject.transform.position = GetHoldPosition(hand).position;
     }
 
     //function to place held grabbable (with the animation, assisted by Socket.cs (will be up for modification)
@@ -384,6 +381,9 @@ public class RaycasterObj : MonoBehaviour
         {
             sliderReady = false;
 
+            if (sliderController != null)
+                sliderController.SetTarget(rightSliderTarget);
+
             playerController.SetPlayerState(Player.PlayerMode.SliderInteraction);
 
             MoveHeldObjectsToSliderHands();
@@ -428,17 +428,20 @@ public class RaycasterObj : MonoBehaviour
     {
         DG.Tweening.Sequence sequence = DOTween.Sequence();
 
-        if (heldObjR != null && holdPosR != null)
-        {
-            sequence.Join(heldObjR.transform.DOMove(holdPosR.position, 0.5f).SetEase(Ease.InOutCirc));
-        }
+        Transform rightObject = GetManipulatedTransform(Hand.Right);
+        Transform leftObject = GetManipulatedTransform(Hand.Left);
 
-        if (heldObjL != null && holdPosL != null)
-        {
-            sequence.Join(heldObjL.transform.DOMove(holdPosL.position, 0.5f).SetEase(Ease.InOutCirc));
-        }
+        rightObject?.DOKill();
+        leftObject?.DOKill();
 
-        sequence.OnComplete(() => {
+        if (holdPosR != null)
+            sequence.Join(MoveManipulatedObjectTo(Hand.Right, holdPosR));
+
+        if (holdPosL != null)
+            sequence.Join(MoveManipulatedObjectTo(Hand.Left, holdPosL));
+
+        sequence.OnComplete(() =>
+        {
             restoringSliderTarget = false;
         });
     }
@@ -456,20 +459,20 @@ public class RaycasterObj : MonoBehaviour
 
         DG.Tweening.Sequence sequence = DG.Tweening.DOTween.Sequence();
 
-        if (heldObjR != null && sliderHoldPosR != null)
-        {
-            heldObjR.transform.DOKill();
+        Transform rightObject = GetManipulatedTransform(Hand.Right);
+        Transform leftObject = GetManipulatedTransform(Hand.Left);
 
-            sequence.Join(heldObjR.transform.DOMove(sliderHoldPosR.position, 0.5f).SetEase(Ease.InOutCirc)
-            );
+        rightObject?.DOKill();
+        leftObject?.DOKill();
+
+        if (rightObject != null && sliderHoldPosR != null)
+        {
+            sequence.Join(MoveManipulatedObjectTo(Hand.Right, sliderHoldPosR));
         }
 
-        if (heldObjL != null && sliderHoldPosL != null)
+        if (leftObject != null && sliderHoldPosL != null)
         {
-            heldObjL.transform.DOKill();
-
-            sequence.Join(heldObjL.transform.DOMove(sliderHoldPosL.position, 0.5f).SetEase(Ease.InOutCirc)
-            );
+            sequence.Join(MoveManipulatedObjectTo(Hand.Left, sliderHoldPosL));
         }
 
         sequence.OnComplete(() =>
@@ -477,5 +480,49 @@ public class RaycasterObj : MonoBehaviour
             movingToSliderHands = false;
             sliderReady = true;
         });
+    }
+
+    private Transform GetManipulatedTransform(Hand hand)
+    {
+        GameObject heldObject = GetHeldObject(hand);
+
+        if (heldObject == null)
+            return null;
+
+        if (hand == Hand.Right)
+        {
+            SliderTarget sliderTarget =
+                heldObject.GetComponentInParent<SliderTarget>();
+
+            if (sliderTarget != null)
+                return sliderTarget.transform;
+        }
+
+        return heldObject.transform;
+    }
+
+    private Tween MoveManipulatedObjectTo(Hand hand, Transform anchor)
+    {
+        GameObject heldObject = GetHeldObject(hand);
+        Transform manipulatedObject = GetManipulatedTransform(hand);
+
+        if (heldObject == null ||manipulatedObject == null ||anchor == null)
+        {
+            return null;
+        }
+
+        Vector3 childOffset = manipulatedObject.position - heldObject.transform.position;
+
+        Vector3 targetPosition = anchor.position + childOffset;
+
+        return manipulatedObject.DOMove(targetPosition, 0.5f).SetEase(Ease.InOutCirc);
+    }
+
+    private GameObject GetGrabbableRoot(GameObject hitObject)
+    {
+        Grabbable grabbable =
+            hitObject.GetComponentInParent<Grabbable>();
+
+        return grabbable != null? grabbable.gameObject: hitObject;
     }
 }
