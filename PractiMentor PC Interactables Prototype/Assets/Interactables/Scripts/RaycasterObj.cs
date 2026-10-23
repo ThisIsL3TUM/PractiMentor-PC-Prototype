@@ -416,14 +416,9 @@ public class RaycasterObj : MonoBehaviour
 
         if(grabbable != null && grabbable.IsInteractionTimed)
         {
-            //sliderCompleted = true;
             holdingTimedSliderTarget = true;
 
-            //if (sliderController != null)
-               // sliderController.SetVisible(false);
-
-           // if (playerController != null)
-               // playerController.SetPlayerState(Player.PlayerMode.Navigate);
+            //sliderController.SetAutomaticResetEnabled(false);
 
             timedSliderRoutine = StartCoroutine(HoldSliderTarget(grabbable.TimeAmount));
             return;
@@ -446,6 +441,7 @@ public class RaycasterObj : MonoBehaviour
 
         if (sliderController != null)
         {
+            //sliderController.SetAutomaticResetEnabled(true);
             Tween restoreTween = sliderController.RestoreStartingTransform();
 
             sliderController.ClearTarget();
@@ -498,17 +494,6 @@ public class RaycasterObj : MonoBehaviour
         return grabbable != null && grabbable.CanThisInteract;
     }
 
-    private bool CanDoMore (GameObject obj)
-    {
-        Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
-        return grabbable != null && grabbable.CanActionMultiple;
-    }
-
-    private bool HasTimedAmount(GameObject obj)
-    {
-        Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
-        return grabbable != null && grabbable.IsInteractionTimed;
-    }
 
     private bool IsSliderKnobStillHeld()
     {
@@ -592,18 +577,31 @@ public class RaycasterObj : MonoBehaviour
     {
         float elapsed = 0f;
 
-        while (elapsed < duration)
+        while (true)
         {
-            if (!IsSliderKnobStillHeld())
+            if (!IsSliderKnobStillHeld() || sliderController == null)
             {
                 FinishSliderInteraction();
                 yield break;
             }
 
+            if (!sliderController.IsPointerHeld ||
+                !sliderController.IsTargetReached)
+            {
+                elapsed = 0f;
+                yield return null;
+                continue;
+            }
+
             elapsed += Time.deltaTime;
+
+            if (elapsed >= duration)
+            {
+                FinishSliderInteraction();
+                yield break;
+            }
+
             yield return null;
         }
-
-        FinishSliderInteraction();
     }
 }

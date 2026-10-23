@@ -23,12 +23,16 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     public float curveTrackWidth = 4f;
     public float knobSize = 20f;
 
+    public bool IsPointerHeld { get; private set; }
+
     private VisualElement curveElement;
     private VisualElement knobElement;
 
     private int resetVersion;
 
     private Tween resetTween;
+
+    private bool automaticResetEnabled = true;
 
     public BezierSlider(string label = null) : base(label)
     {
@@ -90,11 +94,24 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         });
     }
 
+    public void SetAutomaticResetEnabled (bool enabled)
+    {
+        automaticResetEnabled = enabled;
+
+        if (!enabled)
+        {
+            resetTween?.Kill();
+            resetTween = null;
+            resetVersion++;
+        }
+    }
     private void OnPointerDown(PointerDownEvent evt)
     {
 
         if (evt.button != 0)
             return;
+
+        IsPointerHeld = true;
 
         resetTween.Kill();
         resetTween = null;
@@ -123,11 +140,14 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         if (!this.HasPointerCapture(evt.pointerId))
             return;
 
+        IsPointerHeld = false;
+
         this.ReleasePointer(evt.pointerId);
 
         evt.StopPropagation();
 
-        ScheduleReset();
+        if(automaticResetEnabled)
+            ScheduleReset();
     }
 
     private void SetValueFromPointer(Vector2 pointerPosition)
