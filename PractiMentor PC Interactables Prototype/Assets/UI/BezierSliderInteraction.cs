@@ -9,8 +9,9 @@ public class BezierSliderInteraction : MonoBehaviour
     [SerializeField] private UIDocument uiDocument;
     [SerializeField] private string sliderElementName = "interaction-slider";
 
-    [Header("Slider Reset")]
+    [Header("Slider Customization")]
     [SerializeField] private float resetDuration = 0.5f;
+    [SerializeField, Range(1f, 5f)] private float sliderResistance = 3f;
 
     private BezierSlider slider;
 
@@ -30,6 +31,10 @@ public class BezierSliderInteraction : MonoBehaviour
     public event Action TargetTransformReached;
 
     public float ResetDuration => resetDuration;
+
+    public bool IsPointerHeld => slider != null && slider.IsPointerHeld;
+
+    public bool IsTargetReached => targetReached;
 
     private BezierSlider CreateSlider()
     {
@@ -82,7 +87,7 @@ public class BezierSliderInteraction : MonoBehaviour
         slider.SetValueWithoutNotify(slider.highValue);
 
         slider.RegisterValueChangedCallback(OnSliderValueChanged);
-
+        slider.SetAutomaticResetEnabled(true);
         SetVisible(false);
     }
 
@@ -145,7 +150,7 @@ public class BezierSliderInteraction : MonoBehaviour
 
         float normalizedValue = Mathf.InverseLerp(slider.lowValue,slider.highValue,evt.newValue);
 
-        float progress = 1f - normalizedValue;
+        float progress = Mathf.Pow(1f - normalizedValue, sliderResistance);
         float currentValue;
 
         switch (activeTarget.Property)
@@ -185,11 +190,17 @@ public class BezierSliderInteraction : MonoBehaviour
             ? Mathf.Abs(Mathf.DeltaAngle(currentValue, activeTarget.TargetValue))
             : Mathf.Abs(currentValue - activeTarget.TargetValue);
 
-        if (!targetReached && difference <= activeTarget.Tolerance)
+        if (difference <= activeTarget.Tolerance)
         {
-            targetReached = true;
-            RestoreStartingTransform();
-            TargetTransformReached?.Invoke();
+            if (!targetReached)
+            {
+                targetReached = true;
+                TargetTransformReached?.Invoke();
+            }
+        }
+        else
+        {
+            targetReached = false;
         }
     }
 
@@ -320,39 +331,35 @@ public class BezierSliderInteraction : MonoBehaviour
         slider.SetValueWithoutNotify(slider.highValue);
     }
 
-    public void RestoreStartingTransform()
+    public Tween RestoreStartingTransform()
     {
         if (targetObject == null || activeTarget == null)
-            return;
+            return null;
 
         switch (activeTarget.Property)
         {
             case SliderTarget.TransformProperty.Position:
                 if (activeTarget.UseLocalSpace)
                 {
-                    targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutCirc);
+                    return targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutCirc);
                 }
-                else
-                {
-                    targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutCirc);
-                }
-                break;
+                
+                return targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutCirc);
+                
 
             case SliderTarget.TransformProperty.Rotation:
                 if (activeTarget.UseLocalSpace)
                 {
-                    targetObject.DOLocalRotateQuaternion(startingRotation,resetDuration).SetEase(Ease.InOutCirc);
+                    return targetObject.DOLocalRotateQuaternion(startingRotation, resetDuration).SetEase(Ease.InOutCirc);
                 }
-                else
-                {
-                    targetObject.DORotateQuaternion(startingWorldRotation,resetDuration).SetEase(Ease.InOutCirc);
-                }
-                break;
+                return targetObject.DORotateQuaternion(startingWorldRotation,resetDuration).SetEase(Ease.InOutCirc);
+                
 
             case SliderTarget.TransformProperty.Scale:
-                targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutCirc);
-                break;
+                return targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutCirc);
         }
+
+        return null;
     }
 
     public void FollowObjectOnScreen(Transform target, Camera camera, Vector2 offset)
@@ -387,10 +394,19 @@ public class BezierSliderInteraction : MonoBehaviour
         slider.style.left = panelX + offset.x;
         slider.style.top = panelY - sliderHeight * 0.5f + offset.y;
     }
+
+    public void SetAutomaticResetEnabled(bool enabled)
+    {
+        slider?.SetAutomaticResetEnabled(enabled);
+    }
+
     private void OnDisable()
     {
         if (slider != null)
+        {
+            slider.SetAutomaticResetEnabled(true);
             slider.UnregisterValueChangedCallback(OnSliderValueChanged);
+        }
     }
 
     private void OnDestroy()

@@ -138,6 +138,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 2
   canObjInteract: 0
+  canObjDoActionMore: 0
+  amountAction: 3
+  isInteractionTimed: 0
+  timedVal: 3
 --- !u!1 &120838859
 GameObject:
   m_ObjectHideFlags: 0
@@ -542,6 +546,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 0
   canObjInteract: 1
+  canObjDoActionMore: 0
+  amountAction: 3
+  isInteractionTimed: 0
+  timedVal: 3
 --- !u!1 &321034284
 GameObject:
   m_ObjectHideFlags: 0
@@ -1258,7 +1266,7 @@ Transform:
   m_GameObject: {fileID: 639486967}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.3, y: -0.35, z: 1.8}
+  m_LocalPosition: {x: 0.3, y: -0.2, z: 1.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3113,6 +3121,7 @@ MonoBehaviour:
   uiDocument: {fileID: 900339526}
   sliderElementName: interaction-slider
   resetDuration: 0.5
+  sliderResistance: 2
 --- !u!4 &1135071517
 Transform:
   m_ObjectHideFlags: 0
@@ -9230,7 +9239,7 @@ PrefabInstance:
       objectReference: {fileID: 1724032905}
     - target: {fileID: 8468029383607143250, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 5569
+      value: 5572
       objectReference: {fileID: 0}
     - target: {fileID: 8698190597907957419, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9282,7 +9291,7 @@ PrefabInstance:
       objectReference: {fileID: 604677399}
     - target: {fileID: 8893865798758973246, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 330
+      value: 333
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4925035120226459024, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
@@ -9335,7 +9344,7 @@ PrefabInstance:
       objectReference: {fileID: 698224633}
     - target: {fileID: 6644898340073661556, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 435
+      value: 438
       objectReference: {fileID: 0}
     - target: {fileID: 8272717552122999782, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9383,7 +9392,7 @@ PrefabInstance:
       objectReference: {fileID: 1111161408}
     - target: {fileID: 8385341091578498490, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 1720
+      value: 1723
       objectReference: {fileID: 0}
     - target: {fileID: 8497993741660236740, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_Mesh
@@ -9391,6 +9400,10 @@ PrefabInstance:
       objectReference: {fileID: 1111161408}
     - target: {fileID: 8957876846441450949, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: canObjInteract
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8957876846441450949, guid: 326d11735d089334aa909b5784faffb8, type: 3}
+      propertyPath: canObjDoActionMore
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -9465,7 +9478,7 @@ PrefabInstance:
       objectReference: {fileID: 1750041404}
     - target: {fileID: 6047656268235146832, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
       propertyPath: m_VersionIndex
-      value: 302
+      value: 305
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3680729896319762889, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
@@ -9592,7 +9605,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5428843088392184375, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: snappingActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6639623378294422475, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9640,7 +9653,11 @@ PrefabInstance:
       objectReference: {fileID: 2010905485}
     - target: {fileID: 8750285503508619209, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: m_VersionIndex
-      value: 372
+      value: 375
+      objectReference: {fileID: 0}
+    - target: {fileID: 8842270930932932936, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
+      propertyPath: isInteractionTimed
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4690209393277936484, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
