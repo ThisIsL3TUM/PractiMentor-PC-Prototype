@@ -431,9 +431,6 @@ public class RaycasterObj : MonoBehaviour
         Transform rightObject = GetManipulatedTransform(Hand.Right);
         Transform leftObject = GetManipulatedTransform(Hand.Left);
 
-        rightObject?.DOKill();
-        leftObject?.DOKill();
-
         if (holdPosR != null)
             sequence.Join(MoveManipulatedObjectTo(Hand.Right, holdPosR));
 

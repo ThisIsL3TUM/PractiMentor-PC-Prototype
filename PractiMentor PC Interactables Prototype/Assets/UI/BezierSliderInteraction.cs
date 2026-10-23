@@ -9,8 +9,9 @@ public class BezierSliderInteraction : MonoBehaviour
     [SerializeField] private UIDocument uiDocument;
     [SerializeField] private string sliderElementName = "interaction-slider";
 
-    [Header("Slider Reset")]
+    [Header("Slider Customization")]
     [SerializeField] private float resetDuration = 0.5f;
+    [SerializeField, Range(1f, 5f)] private float sliderResistance = 3f;
 
     private BezierSlider slider;
 
@@ -145,7 +146,7 @@ public class BezierSliderInteraction : MonoBehaviour
 
         float normalizedValue = Mathf.InverseLerp(slider.lowValue,slider.highValue,evt.newValue);
 
-        float progress = 1f - normalizedValue;
+        float progress = Mathf.Pow(1f - normalizedValue, sliderResistance);
         float currentValue;
 
         switch (activeTarget.Property)
