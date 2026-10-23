@@ -189,7 +189,7 @@ public class BezierSliderInteraction : MonoBehaviour
         if (!targetReached && difference <= activeTarget.Tolerance)
         {
             targetReached = true;
-            RestoreStartingTransform();
+            //RestoreStartingTransform();
             TargetTransformReached?.Invoke();
         }
     }
@@ -321,39 +321,35 @@ public class BezierSliderInteraction : MonoBehaviour
         slider.SetValueWithoutNotify(slider.highValue);
     }
 
-    public void RestoreStartingTransform()
+    public Tween RestoreStartingTransform()
     {
         if (targetObject == null || activeTarget == null)
-            return;
+            return null;
 
         switch (activeTarget.Property)
         {
             case SliderTarget.TransformProperty.Position:
                 if (activeTarget.UseLocalSpace)
                 {
-                    targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutCirc);
+                    return targetObject.DOLocalMove(startingPosition, resetDuration).SetEase(Ease.InOutCirc);
                 }
-                else
-                {
-                    targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutCirc);
-                }
-                break;
+                
+                return targetObject.DOMove(startingWorldPosition, resetDuration).SetEase(Ease.InOutCirc);
+                
 
             case SliderTarget.TransformProperty.Rotation:
                 if (activeTarget.UseLocalSpace)
                 {
-                    targetObject.DOLocalRotateQuaternion(startingRotation,resetDuration).SetEase(Ease.InOutCirc);
+                    return targetObject.DOLocalRotateQuaternion(startingRotation, resetDuration).SetEase(Ease.InOutCirc);
                 }
-                else
-                {
-                    targetObject.DORotateQuaternion(startingWorldRotation,resetDuration).SetEase(Ease.InOutCirc);
-                }
-                break;
+                return targetObject.DORotateQuaternion(startingWorldRotation,resetDuration).SetEase(Ease.InOutCirc);
+                
 
             case SliderTarget.TransformProperty.Scale:
-                targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutCirc);
-                break;
+                return targetObject.DOScale(startingScale, resetDuration).SetEase(Ease.InOutCirc);
         }
+
+        return null;
     }
 
     public void FollowObjectOnScreen(Transform target, Camera camera, Vector2 offset)

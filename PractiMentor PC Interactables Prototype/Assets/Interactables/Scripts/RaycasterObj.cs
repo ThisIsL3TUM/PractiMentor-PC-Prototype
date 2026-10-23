@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Unity.VisualScripting;
 using UnityEngine;
+using System.Collections;
 
 //this handles too many things (raycast, hovering, picking objs, movement, socket stuff), needs to be broken down 
 public class RaycasterObj : MonoBehaviour
@@ -38,6 +39,9 @@ public class RaycasterObj : MonoBehaviour
     private bool restoringSliderTarget;
 
     private bool sliderReady;
+
+    private Coroutine timedSliderRoutine;
+    private bool holdingTimedSliderTarget;
 
 
     private enum Hand
@@ -402,20 +406,65 @@ public class RaycasterObj : MonoBehaviour
 
         sliderController.SetTarget(rightSliderTarget);
 
-        // Use the stable hand anchor, not the object being manipulated.
         sliderController.FollowObjectOnScreen(sliderHoldPosR,playerCamera,new Vector2(120f, 0f));
 
     }
 
     private void OnSliderTargetReached()
     {
+        Grabbable grabbable = heldObjR?.GetComponentInParent<Grabbable>();
+
+        if(grabbable != null && grabbable.IsInteractionTimed)
+        {
+            //sliderCompleted = true;
+            holdingTimedSliderTarget = true;
+
+            //if (sliderController != null)
+               // sliderController.SetVisible(false);
+
+           // if (playerController != null)
+               // playerController.SetPlayerState(Player.PlayerMode.Navigate);
+
+            timedSliderRoutine = StartCoroutine(HoldSliderTarget(grabbable.TimeAmount));
+            return;
+        }
+
         sliderCompleted = true;
-        restoringSliderTarget = true;
+        FinishSliderInteraction();
+    }
+
+    private void FinishSliderInteraction()
+    {
+        if (timedSliderRoutine != null)
+        {
+            StopCoroutine(timedSliderRoutine);
+            timedSliderRoutine = null;
+        }
+
+        holdingTimedSliderTarget = false;
+        sliderCompleted = true;
 
         if (sliderController != null)
         {
-            sliderController.SetVisible(false);
+            Tween restoreTween = sliderController.RestoreStartingTransform();
+
             sliderController.ClearTarget();
+            sliderController.SetVisible(false);
+
+            if (restoreTween != null)
+            {
+                restoringSliderTarget = true;
+
+                restoreTween.OnComplete(() =>
+                {
+                    MoveHeldObjectsBackToNormalHands();
+
+                    if (playerController != null)
+                        playerController.SetPlayerState(Player.PlayerMode.Navigate);
+                });
+
+                return;
+            }
         }
 
         MoveHeldObjectsBackToNormalHands();
@@ -449,6 +498,22 @@ public class RaycasterObj : MonoBehaviour
         return grabbable != null && grabbable.CanThisInteract;
     }
 
+    private bool CanDoMore (GameObject obj)
+    {
+        Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
+        return grabbable != null && grabbable.CanActionMultiple;
+    }
+
+    private bool HasTimedAmount(GameObject obj)
+    {
+        Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
+        return grabbable != null && grabbable.IsInteractionTimed;
+    }
+
+    private bool IsSliderKnobStillHeld()
+    {
+        return heldObjR!= null && heldObjR.GetComponentInParent<SliderTarget>() != null;
+    }
     private void MoveHeldObjectsToSliderHands()
     {
         movingToSliderHands = true;
@@ -521,5 +586,24 @@ public class RaycasterObj : MonoBehaviour
             hitObject.GetComponentInParent<Grabbable>();
 
         return grabbable != null? grabbable.gameObject: hitObject;
+    }
+
+    private IEnumerator HoldSliderTarget(float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (!IsSliderKnobStillHeld())
+            {
+                FinishSliderInteraction();
+                yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        FinishSliderInteraction();
     }
 }
