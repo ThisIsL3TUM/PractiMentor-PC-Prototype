@@ -400,6 +400,16 @@ public class BezierSliderInteraction : MonoBehaviour
         slider?.SetAutomaticResetEnabled(enabled);
     }
 
+    public void SetTimedProgress (float progress)
+    {
+        slider?.SetTimedProgress(progress);
+    }
+
+    public void ResetTimedProgress()
+    {
+        slider?.ResetTimedProgress();
+    }
+
     private void OnDisable()
     {
         if (slider != null)

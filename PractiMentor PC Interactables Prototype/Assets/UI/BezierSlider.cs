@@ -19,6 +19,8 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     [Header("Appearance")]
     public Color trackColor = new Color(1f, 0.94f, 0.85f);//antiqueWhite
     public Color curveColor = new Color(0.4f, 0.85f, 1f); //aliceBlue
+    public Color knobColor = Color.silver;
+    public Color fillingColor = Color.orange;
     public int curveSegments = 32;
 
     [Header("Track Appearance")]
@@ -39,6 +41,8 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
     private IVisualElementScheduledItem dragFollowSchedule;
     private float pointerTargetValue;
+
+    private float timedProgress;
 
     public BezierSlider(string label = null) : base(label)
     {
@@ -226,11 +230,16 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
         painter.lineCap = LineCap.Round;
 
-        DrawBezierPath(painter, trackColor, backgroundTrackWidth);
-        DrawBezierPath(painter, curveColor, curveTrackWidth);
+        DrawBezierPath(painter, trackColor, backgroundTrackWidth, 1f);
+        DrawBezierPath(painter, curveColor, curveTrackWidth, 1f);
+
+        if(timedProgress > 0f)
+        {
+            DrawBezierPath(painter, fillingColor, curveTrackWidth, timedProgress);
+        }
     }
 
-    private void DrawBezierPath(Painter2D painter, Color color, float width)
+    private void DrawBezierPath(Painter2D painter, Color color, float width, float endT)
     {
         painter.strokeColor = color;
         painter.lineWidth = width;
@@ -238,8 +247,9 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         painter.BeginPath();
 
         int segments = Mathf.Max(2, curveSegments);
+        int visibleSegments = Mathf.Max(1, Mathf.RoundToInt(segments * endT));
 
-        for(int i = 0; i <= segments; i++)
+        for(int i = 0; i <= visibleSegments; i++)
         {
             float t = i / (float) segments;
 
@@ -267,7 +277,7 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
         float radius = knobSize * 0.5f;
 
-        knobElement.style.backgroundColor = curveColor;
+        knobElement.style.backgroundColor = knobColor;
 
         knobElement.style.borderTopLeftRadius = radius;
         knobElement.style.borderTopRightRadius = radius;
@@ -306,4 +316,15 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         value = Mathf.Lerp(value, pointerTargetValue, followAmount);
     }
 
+    public void SetTimedProgress(float progress)
+    {
+        timedProgress = Mathf.Clamp01(progress);
+        curveElement.MarkDirtyRepaint();
+    }
+
+    public void ResetTimedProgress()
+    {
+        timedProgress = 0f;
+        curveElement.MarkDirtyRepaint();
+    }
 }

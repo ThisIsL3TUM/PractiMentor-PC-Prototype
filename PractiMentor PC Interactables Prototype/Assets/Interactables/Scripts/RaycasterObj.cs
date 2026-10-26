@@ -445,6 +445,7 @@ public class RaycasterObj : MonoBehaviour
             Tween restoreTween = sliderController.RestoreStartingTransform();
 
             sliderController.ClearTarget();
+            sliderController.ResetTimedProgress();
             sliderController.SetVisible(false);
 
             if (restoreTween != null)
@@ -581,19 +582,24 @@ public class RaycasterObj : MonoBehaviour
         {
             if (!IsSliderKnobStillHeld() || sliderController == null)
             {
+                sliderController?.ResetTimedProgress();
                 FinishSliderInteraction();
                 yield break;
             }
 
-            if (!sliderController.IsPointerHeld ||
-                !sliderController.IsTargetReached)
+            if (!sliderController.IsPointerHeld || !sliderController.IsTargetReached)
             {
                 elapsed = 0f;
+                sliderController.ResetTimedProgress();
+
                 yield return null;
                 continue;
             }
 
             elapsed += Time.deltaTime;
+
+            float progress = Mathf.Clamp01(elapsed / duration);
+            sliderController.SetTimedProgress(progress);
 
             if (elapsed >= duration)
             {
