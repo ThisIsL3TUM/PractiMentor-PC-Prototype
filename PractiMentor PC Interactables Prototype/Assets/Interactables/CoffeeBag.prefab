@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6639623378294422475}
-  - component: {fileID: 4690209393277936484}
   - component: {fileID: 8842270930932932936}
   - component: {fileID: 5428843088392184375}
   m_Layer: 0
@@ -35,20 +34,6 @@ Transform:
   - {fileID: 1234117434682132168}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4690209393277936484
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3595200643642108949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: efc147c11ef12064fbb43f2de0049935, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Grabbable
-  grabbableHandDirection: 1
-  canObjInteract: 1
 --- !u!114 &8842270930932932936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,6 +48,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 1
   canObjInteract: 1
+  canObjDoActionMore: 0
+  amountAction: 3
+  isInteractionTimed: 1
+  timedVal: 3
 --- !u!114 &5428843088392184375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,9 +64,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a590582ffc7ef7d4d8aa35ba636d46c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SliderTarget
+  property: 1
   axis: 2
-  initialRotation: 0
-  targetRotation: 60
+  useLocalSpace: 0
+  initialValue: 0
+  targetValue: 60
   snappingActive: 1
   rotationSnapAngle: 15
   tolerance: 1
@@ -330,7 +321,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 363
+  m_VersionIndex: 381
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

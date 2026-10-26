@@ -927,7 +927,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 327
+  m_VersionIndex: 336
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1604,7 +1604,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5566
+  m_VersionIndex: 5575
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1724,7 +1724,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8698190597907957419}
-  - component: {fileID: 4925035120226459024}
+  - component: {fileID: 8128342403905987991}
   m_Layer: 0
   m_Name: Portafilter
   m_TagString: Untagged
@@ -1748,7 +1748,7 @@ Transform:
   - {fileID: 1443075276884614756}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4925035120226459024
+--- !u!114 &8128342403905987991
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1762,3 +1762,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 0
   canObjInteract: 1
+  canObjDoActionMore: 0
+  amountAction: 3
+  isInteractionTimed: 0
+  timedVal: 3

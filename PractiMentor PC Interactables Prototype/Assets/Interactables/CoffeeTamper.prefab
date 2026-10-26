@@ -566,7 +566,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 1711
+  m_VersionIndex: 1726
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -686,7 +686,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8272717552122999782}
-  - component: {fileID: 7001860365533014339}
   - component: {fileID: 8957876846441450949}
   - component: {fileID: 3298372407693690194}
   m_Layer: 0
@@ -712,20 +711,6 @@ Transform:
   - {fileID: 8330240798624258376}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7001860365533014339
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1031027160770593909}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: efc147c11ef12064fbb43f2de0049935, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Grabbable
-  grabbableHandDirection: 1
-  canObjInteract: 0
 --- !u!114 &8957876846441450949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -739,7 +724,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 1
-  canObjInteract: 0
+  canObjInteract: 1
+  canObjDoActionMore: 1
+  amountAction: 3
+  isInteractionTimed: 0
+  timedVal: 3
 --- !u!114 &3298372407693690194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -752,10 +741,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a590582ffc7ef7d4d8aa35ba636d46c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SliderTarget
-  axis: 0
-  initialRotation: 0
-  targetRotation: 60
-  snappingActive: 0
+  property: 1
+  axis: 1
+  useLocalSpace: 1
+  initialValue: 0
+  targetValue: 60
+  snappingActive: 1
   rotationSnapAngle: 15
   tolerance: 1
 --- !u!1 &1501076292933790572
@@ -1007,7 +998,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 426
+  m_VersionIndex: 441
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

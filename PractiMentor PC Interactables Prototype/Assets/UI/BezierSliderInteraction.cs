@@ -11,7 +11,7 @@ public class BezierSliderInteraction : MonoBehaviour
 
     [Header("Slider Customization")]
     [SerializeField] private float resetDuration = 0.5f;
-    [SerializeField, Range(1f, 5f)] private float sliderResistance = 3f;
+    [SerializeField, Range(1f, 5f)] private float sliderResistance = 5f;
 
     private BezierSlider slider;
 

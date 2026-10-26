@@ -9,6 +9,9 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     public float resetDuration = 0.75f;
     public float resetValue = 1f;
 
+    [Header("Drag Adjustments")]
+    public float dragFollowDuration = 0.18f;
+
     [Header("Brezier Shape")]
     public Vector2 controlPoint1 = new(0.3f, 0.1f);
     public Vector2 controlPoint2 = new(0.7f, 0.9f);
@@ -33,6 +36,9 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     private Tween resetTween;
 
     private bool automaticResetEnabled = true;
+
+    private IVisualElementScheduledItem dragFollowSchedule;
+    private float pointerTargetValue;
 
     public BezierSlider(string label = null) : base(label)
     {
@@ -113,14 +119,15 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
         IsPointerHeld = true;
 
-        resetTween.Kill();
+        resetTween?.Kill();
         resetTween = null;
 
         resetVersion++;
 
         this.CapturePointer(evt.pointerId);
 
-        SetValueFromPointer(evt.localPosition);
+        pointerTargetValue = GetValueFromPointer(evt.localPosition);
+        StartDragFollow();
 
         evt.StopPropagation();
     }
@@ -130,7 +137,7 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         if (!this.HasPointerCapture(evt.pointerId))
             return;
 
-        SetValueFromPointer(evt.localPosition);
+        pointerTargetValue = GetValueFromPointer(evt.localPosition);
 
         evt.StopPropagation();
     }
@@ -142,6 +149,8 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
         IsPointerHeld = false;
 
+        dragFollowSchedule?.Pause();
+
         this.ReleasePointer(evt.pointerId);
 
         evt.StopPropagation();
@@ -150,17 +159,16 @@ public class BezierSlider : UnityEngine.UIElements.Slider
             ScheduleReset();
     }
 
-    private void SetValueFromPointer(Vector2 pointerPosition)
+    private float GetValueFromPointer(Vector2 pointerPosition)
     {
-        //float width = contentRect.width;
         float height = contentRect.height;
 
         if (height <= 0f)
-            return;
+            return value;
 
         float normalizedValue = 1f - Mathf.Clamp01(pointerPosition.y / height);
 
-        value = Mathf.Lerp(lowValue, highValue, normalizedValue);
+        return Mathf.Lerp(lowValue, highValue, normalizedValue);
     }
 
     private void ScheduleReset()
@@ -277,6 +285,25 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         knobElement.style.left = pixelPosition.x - halfKnobSize;
         knobElement.style.top = pixelPosition.y - halfKnobSize;
 
+    }
+
+    private void StartDragFollow()
+    {
+        dragFollowSchedule ??= schedule.Execute(UpdateDragFollow).Every(16);
+
+        dragFollowSchedule.Resume();
+    }
+
+    private void UpdateDragFollow()
+    {
+        if (!IsPointerHeld)
+            return;
+
+        float duration = Mathf.Max(0.01f, dragFollowDuration);
+
+        float followAmount = 1f - Mathf.Exp(-Time.unscaledDeltaTime / duration);
+
+        value = Mathf.Lerp(value, pointerTargetValue, followAmount);
     }
 
 }

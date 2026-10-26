@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1164676834768636683}
-  - component: {fileID: 3680729896319762889}
+  - component: {fileID: 3130235507951016938}
   m_Layer: 0
   m_Name: Mug
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   - {fileID: 8287640188467403567}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3680729896319762889
+--- !u!114 &3130235507951016938
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -47,6 +47,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 2
   canObjInteract: 0
+  canObjDoActionMore: 0
+  amountAction: 3
+  isInteractionTimed: 0
+  timedVal: 3
 --- !u!1 &3738672511130214552
 GameObject:
   m_ObjectHideFlags: 0
@@ -614,7 +618,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 299
+  m_VersionIndex: 308
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

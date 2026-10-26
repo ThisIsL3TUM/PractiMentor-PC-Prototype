@@ -249,7 +249,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 319
+  m_VersionIndex: 352
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -380,8 +380,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4551330442001158346}
-  - component: {fileID: 7931035764023053069}
-  - component: {fileID: 8477651792723444973}
+  - component: {fileID: 472445179717426665}
   m_Layer: 0
   m_Name: Socket
   m_TagString: Untagged
@@ -405,21 +404,7 @@ Transform:
   - {fileID: 894240651400862373}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7931035764023053069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3143115035354930113}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7c5e2b60e96ab34ebc9d269ecbcea95, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Socket
-  socketBehaviour: 0
-  placementPoint: {fileID: 0}
---- !u!114 &8477651792723444973
+--- !u!114 &472445179717426665
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
