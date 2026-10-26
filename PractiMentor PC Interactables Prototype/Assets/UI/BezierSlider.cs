@@ -10,7 +10,7 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     public float resetValue = 1f;
 
     [Header("Drag Adjustments")]
-    public float dragFollowDuration = 0.18f;
+    public float dragFollowDuration = 0.10f;
 
     [Header("Brezier Shape")]
     public Vector2 controlPoint1 = new(0.3f, 0.1f);
@@ -43,6 +43,8 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     private float pointerTargetValue;
 
     private float timedProgress;
+
+    private float pointerGrabOffset;
 
     public BezierSlider(string label = null) : base(label)
     {
@@ -115,11 +117,29 @@ public class BezierSlider : UnityEngine.UIElements.Slider
             resetVersion++;
         }
     }
+
+    private Vector2 GetSliderLocalPosition (Vector2 sliderPosition)
+    {
+        return this.WorldToLocal(sliderPosition);
+    }
+
     private void OnPointerDown(PointerDownEvent evt)
     {
 
         if (evt.button != 0)
             return;
+
+        Vector2 localPosition = GetSliderLocalPosition(evt.position);
+
+        bool clickedKnob = knobElement.layout.Contains(localPosition);
+
+        if (!clickedKnob)
+        { 
+            evt.StopPropagation();
+            return;
+        }
+
+        pointerGrabOffset = localPosition.y - knobElement.layout.center.y;
 
         IsPointerHeld = true;
 
@@ -130,7 +150,8 @@ public class BezierSlider : UnityEngine.UIElements.Slider
 
         this.CapturePointer(evt.pointerId);
 
-        pointerTargetValue = GetValueFromPointer(evt.localPosition);
+        pointerTargetValue = GetValueFromPointer(new Vector2 (localPosition.x, localPosition.y - pointerGrabOffset));
+
         StartDragFollow();
 
         evt.StopPropagation();
@@ -141,7 +162,9 @@ public class BezierSlider : UnityEngine.UIElements.Slider
         if (!this.HasPointerCapture(evt.pointerId))
             return;
 
-        pointerTargetValue = GetValueFromPointer(evt.localPosition);
+        Vector2 localPosition = GetSliderLocalPosition(evt.position);
+
+        pointerTargetValue = GetValueFromPointer(new Vector2(localPosition.x, localPosition.y - pointerGrabOffset));
 
         evt.StopPropagation();
     }

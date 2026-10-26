@@ -54,9 +54,9 @@ public class BezierSliderInteraction : MonoBehaviour
             controlPoint2 = new Vector2(1f, 0.75f),
             curveSegments = 32,
 
-            backgroundTrackWidth = 64f,
-            curveTrackWidth = 28f,
-            knobSize = 60f,
+            backgroundTrackWidth = 96f,
+            curveTrackWidth = 42f,
+            knobSize = 90f,
 
             curveColor = new Color(0.4f, 0.85f, 1f),
             trackColor = new Color(1f, 0.94f, 0.85f)
