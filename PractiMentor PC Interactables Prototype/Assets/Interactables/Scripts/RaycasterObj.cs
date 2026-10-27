@@ -43,6 +43,11 @@ public class RaycasterObj : MonoBehaviour
     private Coroutine timedSliderRoutine;
     private bool holdingTimedSliderTarget;
 
+    private int completedSliderActions;
+    private Grabbable activeSliderGrabbable;
+    private bool restoringBetweenSliderActions;
+
+    private bool completingSliderAction;
 
     private enum Hand
     {
@@ -253,7 +258,7 @@ public class RaycasterObj : MonoBehaviour
     //fuction to move held grabbable
     void MoveObject(Hand hand)
     {
-        if (movingToSliderHands || restoringSliderTarget)
+        if (movingToSliderHands || restoringSliderTarget || restoringBetweenSliderActions)
             return;
 
         if (playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction)
@@ -357,6 +362,11 @@ public class RaycasterObj : MonoBehaviour
 
     private void UpdateInteractionSlider()
     {
+        if (restoringBetweenSliderActions)
+        {
+            return;
+        }
+
         SliderTarget rightSliderTarget = heldObjR?.GetComponentInParent<SliderTarget>();
 
         bool canUseSlider = heldObjR != null && heldObjL != null && CanInteract(heldObjR) && CanInteract(heldObjL) && rightSliderTarget != null;
@@ -383,6 +393,11 @@ public class RaycasterObj : MonoBehaviour
 
         if (enteringSliderMode)
         {
+            Grabbable grabbable = heldObjR.GetComponentInParent<Grabbable>();
+
+            activeSliderGrabbable = grabbable;
+            completedSliderActions = 0;
+            sliderCompleted = false;
             sliderReady = false;
 
             if (sliderController != null)
@@ -412,24 +427,110 @@ public class RaycasterObj : MonoBehaviour
 
     private void OnSliderTargetReached()
     {
+        if (completingSliderAction)
+            return;
+
+        completingSliderAction = true;
+
         Grabbable grabbable = heldObjR?.GetComponentInParent<Grabbable>();
 
         if(grabbable != null && grabbable.IsInteractionTimed)
         {
             holdingTimedSliderTarget = true;
-
-            //sliderController.SetAutomaticResetEnabled(false);
-
             timedSliderRoutine = StartCoroutine(HoldSliderTarget(grabbable.TimeAmount));
             return;
         }
 
-        sliderCompleted = true;
-        FinishSliderInteraction();
+        CompleteSliderAction();
     }
 
+    private void CompleteSliderAction()
+    {
+        Grabbable grabbable = activeSliderGrabbable;
+
+        if (grabbable == null)
+        {
+            FinishSliderInteraction();
+            return;
+        }
+
+        completedSliderActions++;
+
+        bool needsAnotherAction = grabbable.CanActionMultiple && completedSliderActions < grabbable.ActionCount;
+
+        if (needsAnotherAction)
+        {
+            StartCoroutine(WaitForPointerReleaseThenRestore());
+        }
+        else
+        {
+            FinishSliderInteraction();
+        }
+    }
+    private IEnumerator WaitForPointerReleaseThenRestore()
+    {
+        while (sliderController != null && sliderController.IsPointerHeld)
+            yield return null;
+
+        RestoreAndPrepareNextAction();
+    }
+    private void RestoreAndPrepareNextAction()
+    {
+        if (sliderController == null)
+        {
+            FinishSliderInteraction();
+            return;
+        }
+
+        restoringBetweenSliderActions = true;
+        sliderReady = false;
+
+        Tween restoreTween = sliderController.RestoreStartingTransform();
+
+        sliderController.ClearTarget();
+        sliderController.ResetTimedProgress();
+        sliderController.SetVisible(false);
+
+        if (restoreTween != null)
+        {
+            restoreTween.OnComplete(() =>
+            {
+                restoringBetweenSliderActions = false;
+                PrepareNextSliderAction();
+            });
+        }
+        else
+        {
+            restoringBetweenSliderActions = false;
+            PrepareNextSliderAction();
+        }
+    }
+
+    private void PrepareNextSliderAction()
+    {
+        if (heldObjR == null)
+            return;
+
+        SliderTarget target = heldObjR.GetComponentInParent<SliderTarget>();
+
+        if(target == null)
+        {
+            FinishSliderInteraction();
+            return;
+        }
+
+        sliderController.RearmTarget(target);
+
+        sliderCompleted = false;
+        sliderReady = true;
+        completingSliderAction = false;
+
+        sliderController.SetVisible(true);
+    }
     private void FinishSliderInteraction()
     {
+        completingSliderAction = false;
+
         if (timedSliderRoutine != null)
         {
             StopCoroutine(timedSliderRoutine);
@@ -603,7 +704,7 @@ public class RaycasterObj : MonoBehaviour
 
             if (elapsed >= duration)
             {
-                FinishSliderInteraction();
+                CompleteSliderAction();
                 yield break;
             }
 

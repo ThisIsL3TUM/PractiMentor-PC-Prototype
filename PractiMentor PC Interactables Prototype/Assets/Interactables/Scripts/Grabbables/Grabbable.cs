@@ -15,7 +15,7 @@ public class Grabbable : MonoBehaviour
     [Header("Interaction Set Up")]
     [SerializeField] private bool canObjInteract = false;
     [SerializeField] private bool canObjDoActionMore = false;
-    [SerializeField] private int amountAction = 3;
+    [SerializeField, Range(1, 5)] private int amountAction = 3;
 
     [Header("Timed Interaction Elements")]
     [SerializeField] private bool isInteractionTimed = false;
@@ -24,7 +24,7 @@ public class Grabbable : MonoBehaviour
 
     public bool CanThisInteract => canObjInteract;
     public bool CanActionMultiple => canObjDoActionMore;
-    public int ActionCount => amountAction;
+    public int ActionCount => Mathf.Max(1, amountAction);
     public bool IsInteractionTimed => isInteractionTimed;
     public float TimeAmount => timedVal;
 

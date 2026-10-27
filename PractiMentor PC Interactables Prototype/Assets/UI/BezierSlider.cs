@@ -10,7 +10,7 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     public float resetValue = 1f;
 
     [Header("Drag Adjustments")]
-    public float dragFollowDuration = 0.10f;
+    public float dragFollowDuration = 0.08f;
 
     [Header("Brezier Shape")]
     public Vector2 controlPoint1 = new(0.3f, 0.1f);
@@ -349,5 +349,12 @@ public class BezierSlider : UnityEngine.UIElements.Slider
     {
         timedProgress = 0f;
         curveElement.MarkDirtyRepaint();
+    }
+
+    public void CancelReset()
+    {
+        resetTween?.Kill();
+        resetTween = null;
+        resetVersion++;
     }
 }

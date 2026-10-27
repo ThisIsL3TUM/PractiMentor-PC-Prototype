@@ -119,10 +119,38 @@ public class BezierSliderInteraction : MonoBehaviour
 
         startingValue = GetStartingValue();
 
+        Debug.Log(
+    $"Slider cycle setup | " +
+    $"Starting Y: {startingValue} | " +
+    $"Target Y: {target.TargetValue} | " +
+    $"Actual Y: {targetObject.localEulerAngles.y}");
+
         targetReached = false;
-        hasTarget = true;
+        hasTarget = false;
 
         ResetSlider();
+
+        hasTarget = true;
+    }
+
+    public void RearmTarget(SliderTarget target)
+    {
+        if (target == null)
+        {
+            Debug.LogWarning($"{name}: Tried to rearm a null SliderTarget.");
+            return;
+        }
+
+        activeTarget = target;
+        targetObject = target.transform;
+
+        targetReached = false;
+        hasTarget = false;
+
+        ResetSlider();
+
+        hasTarget = true;
+
     }
 
     public void ClearTarget()
@@ -145,7 +173,7 @@ public class BezierSliderInteraction : MonoBehaviour
     }
     private void OnSliderValueChanged(ChangeEvent<float> evt)
     {
-        if (!hasTarget || activeTarget == null || targetObject == null)
+        if (!hasTarget || activeTarget == null || targetObject == null || !slider.IsPointerHeld)
             return;
 
         float normalizedValue = Mathf.InverseLerp(slider.lowValue,slider.highValue,evt.newValue);
@@ -328,6 +356,7 @@ public class BezierSliderInteraction : MonoBehaviour
         if (slider == null)
             return;
 
+        slider.CancelReset();
         slider.SetValueWithoutNotify(slider.highValue);
     }
 
