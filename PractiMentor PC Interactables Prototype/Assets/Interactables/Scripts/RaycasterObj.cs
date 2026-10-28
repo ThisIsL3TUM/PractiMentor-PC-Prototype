@@ -401,12 +401,9 @@ public class RaycasterObj : MonoBehaviour
             sliderCompleted = false;
             sliderReady = false;
 
-            if (sliderController != null)
-                sliderController.SetTarget(rightSliderTarget);
-
             playerController.SetPlayerState(Player.PlayerMode.SliderInteraction);
 
-            MoveHeldObjectsToSliderHands();
+            MoveHeldObjectsToSliderHands(rightSliderTarget);
         }
 
         bool showSlider =!sliderCompleted && sliderReady && !movingToSliderHands;
@@ -609,7 +606,7 @@ public class RaycasterObj : MonoBehaviour
     {
         return heldObjR!= null && heldObjR.GetComponentInParent<SliderTarget>() != null;
     }
-    private void MoveHeldObjectsToSliderHands()
+    private void MoveHeldObjectsToSliderHands(SliderTarget sliderTarget)
     {
         movingToSliderHands = true;
         sliderReady = false;
@@ -635,6 +632,10 @@ public class RaycasterObj : MonoBehaviour
         sequence.OnComplete(() =>
         {
             movingToSliderHands = false;
+
+            if (sliderController != null && sliderTarget != null)
+                sliderController.SetTarget(sliderTarget);
+
             sliderReady = true;
         });
     }
