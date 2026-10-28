@@ -1,11 +1,13 @@
 using DG.Tweening;
-using Unity.VisualScripting;
 using UnityEngine;
 using System.Collections;
+using System;
 
 //this handles too many things (raycast, hovering, picking objs, movement, socket stuff), needs to be broken down 
 public class RaycasterObj : MonoBehaviour
 {
+    public event Action<InteractionCompletedEvent> InteractionCompleted;
+
     private Camera playerCamera;
     private LayerMask layerMask;
     private int layerNumber;
@@ -32,6 +34,9 @@ public class RaycasterObj : MonoBehaviour
     [Header("Slider Set Up")]
     [SerializeField] private BezierSliderInteraction sliderController;
     [SerializeField, Min(0f)] private float delayBetweenSliderActions = 0.3f;
+
+    [Header("Workflow")]
+    [SerializeField] private InteractionSequenceController sequenceController;
 
     private bool sliderCompleted;
 
@@ -370,7 +375,10 @@ public class RaycasterObj : MonoBehaviour
 
         SliderTarget rightSliderTarget = heldObjR?.GetComponentInParent<SliderTarget>();
 
-        bool canUseSlider = heldObjR != null && heldObjL != null && CanInteract(heldObjR) && CanInteract(heldObjL) && rightSliderTarget != null;
+        bool canUseSlider = heldObjR != null && heldObjL != null 
+            && CanInteract(heldObjR) && CanInteract(heldObjL) 
+            && rightSliderTarget != null && sequenceController != null 
+            && sequenceController.CanStartInteraction(heldObjR, heldObjL);
 
         if (!canUseSlider)
         {
@@ -462,6 +470,7 @@ public class RaycasterObj : MonoBehaviour
         }
         else
         {
+            InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.SliderCompleted,heldObjR,heldObjL));
             FinishSliderInteraction();
         }
     }
