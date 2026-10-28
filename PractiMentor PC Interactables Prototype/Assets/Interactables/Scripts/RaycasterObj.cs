@@ -31,6 +31,7 @@ public class RaycasterObj : MonoBehaviour
     //slider reference
     [Header("Slider Set Up")]
     [SerializeField] private BezierSliderInteraction sliderController;
+    [SerializeField, Min(0f)] private float delayBetweenSliderActions = 0.3f;
 
     private bool sliderCompleted;
 
@@ -471,6 +472,13 @@ public class RaycasterObj : MonoBehaviour
     {
         while (sliderController != null && sliderController.IsPointerHeld)
             yield return null;
+
+        float delay = activeSliderGrabbable != null
+        ? activeSliderGrabbable.DelayBetweenSliderAction
+        : 0f;
+
+        if (delay > 0f)
+            yield return new WaitForSeconds(delay);
 
         RestoreAndPrepareNextAction();
     }

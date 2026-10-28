@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1933351966757717749}
   - component: {fileID: 5762579999749198248}
   - component: {fileID: 5554052118810820992}
+  - component: {fileID: 1731012527389290133}
   m_Layer: 3
   m_Name: PortafilterHandleMesh
   m_TagString: Grabbable
@@ -927,7 +928,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 336
+  m_VersionIndex: 345
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -984,7 +985,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c22777d6e868e4f2fb421913386b154e, type: 2}
+  - {fileID: 2100000, guid: ed1c14fdc5e21cc41afee650a5b4d8a2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1038,6 +1039,20 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!114 &1731012527389290133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3708933621500554373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52b2ff37f78a6cb4a8295d106b92e153, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractablesBase
+  indexOfMaterial: 0
+  highlightDuration: 0.5
 --- !u!1 &3776156450218310482
 GameObject:
   m_ObjectHideFlags: 0
@@ -1604,7 +1619,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5575
+  m_VersionIndex: 5584
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1661,7 +1676,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c22777d6e868e4f2fb421913386b154e, type: 2}
+  - {fileID: 2100000, guid: 529c0d878aa43c44dbcf6c576bca819e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1764,5 +1779,6 @@ MonoBehaviour:
   canObjInteract: 1
   canObjDoActionMore: 0
   amountAction: 3
+  delayBetweenSliderAction: 0.3
   isInteractionTimed: 0
   timedVal: 3
