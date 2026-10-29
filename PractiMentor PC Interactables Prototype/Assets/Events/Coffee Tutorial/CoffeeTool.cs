@@ -4,7 +4,8 @@ public enum CoffeeToolType
 {
     Portafilter,
     CoffeeBag,
-    CoffeeTamper
+    CoffeeTamper,
+    Mug
 }
 public class CoffeeTool : MonoBehaviour
 {

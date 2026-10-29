@@ -142,29 +142,38 @@ public class RaycasterObj : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, interactableRange, layerMask))
         {
-            //highlighting logic
-            switch (hit.transform.gameObject.tag)
+            bool hitIsSocket = hit.transform.CompareTag("Socket");
+
+            Socket hitSocket = hitIsSocket ? hit.transform.GetComponentInParent<Socket>() : null;
+
+            bool socketCanAcceptHeldItem = false;
+
+            if (hitSocket != null && TryFindHeldHand(out Hand heldHand))
             {
-                case "Grabbable":
-                case "Clickable":
-                case "Socket" when AnyObjectHeld():
-                    {
-                        if (hit.transform.TryGetComponent(out InteractablesBase nextInteractable))
-                        {
-                            if (currentInteractable != nextInteractable)
-                            {
-                                currentInteractable?.SetHighlighted(false);
+                GameObject heldObject = GetHeldObject(heldHand);
+                GameObject grabbableRoot = GetGrabbableRoot(heldObject);
 
-                                currentInteractable = nextInteractable;
-                                currentInteractable.SetHighlighted(true);
-                            }
-                        }
-
-                        break;
-                    }
+                socketCanAcceptHeldItem = hitSocket.CanAccept(grabbableRoot);
             }
 
-            if (!hit.transform.CompareTag("Grabbable") && !hit.transform.CompareTag("Clickable") && !(hit.transform.CompareTag("Socket") && AnyObjectHeld()))
+            //highlighting logic
+            bool canHighlightHit = hit.transform.CompareTag("Grabbable") || hit.transform.CompareTag("Clickable") || (hitIsSocket && socketCanAcceptHeldItem);
+
+            if (canHighlightHit)
+            {
+                if(hit.transform.TryGetComponent(out InteractablesBase nextInteractable))
+                {
+                    if(currentInteractable != nextInteractable)
+                    {
+                        currentInteractable?.SetHighlighted(false);
+
+                        currentInteractable = nextInteractable;
+                        currentInteractable.SetHighlighted(true);
+                    }
+                }
+            }
+
+            if (!canHighlightHit)
             {
                 ClearCurrentInteractable();
             }
@@ -192,9 +201,9 @@ public class RaycasterObj : MonoBehaviour
                 {
                     Debug.Log("You clicked something!");
                 }
-                else if (hit.transform.CompareTag("Socket"))
+                else if (hitIsSocket && socketCanAcceptHeldItem)
                 {
-                    Socket socket = hit.transform.GetComponentInParent<Socket>();
+                    Socket socket = hitSocket;
 
                     //checks socket state 
                     if (socket == null)
@@ -206,6 +215,7 @@ public class RaycasterObj : MonoBehaviour
                     if (TryFindHeldHand(out Hand selectedHand))
                     {
                         GameObject heldObject = GetHeldObject(selectedHand);
+                        GameObject grabbableRoot = GetGrabbableRoot(heldObject);
 
                         if (socket.TryOccupySocket(heldObject, out Transform placementPoint))
                         {
@@ -213,7 +223,7 @@ public class RaycasterObj : MonoBehaviour
                         }
                         else
                         {
-                            Debug.Log("There is already something here...");
+                            Debug.Log("This socket can't accept this item :[");
                         }
                     }
 

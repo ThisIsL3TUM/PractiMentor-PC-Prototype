@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 //this is where socket logic happens
@@ -15,12 +16,27 @@ public class Socket : MonoBehaviour
     [SerializeField] private SocketStateType socketBehaviour = SocketStateType.Free;
     [SerializeField] private Transform placementPoint;
 
+    [Header("Compatibility")]
+    [SerializeField] private CoffeeToolType[] acceptedToolTypes;
+
+    public bool CanAccept(GameObject item)
+    {
+        if (socketBehaviour != SocketStateType.Free || item == null)
+            return false;
+
+        CoffeeTool tool = item.GetComponentInParent<CoffeeTool>();
+
+        if (tool == null) 
+            return false;
+
+        return Array.IndexOf(acceptedToolTypes, tool.ToolType) >= 0;
+    }
     //function to put object in socket
     public bool TryOccupySocket(GameObject item, out Transform target)
     {
         target = null;
 
-        if(socketBehaviour != SocketStateType.Free || item == null)
+        if(!CanAccept(item))
             return false;
         
 

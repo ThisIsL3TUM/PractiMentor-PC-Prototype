@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1164676834768636683}
   - component: {fileID: 3130235507951016938}
+  - component: {fileID: 646328334505847555}
   m_Layer: 0
   m_Name: Mug
   m_TagString: Untagged
@@ -49,8 +50,22 @@ MonoBehaviour:
   canObjInteract: 0
   canObjDoActionMore: 0
   amountAction: 3
+  delayBetweenSliderAction: 0.3
   isInteractionTimed: 0
   timedVal: 3
+--- !u!114 &646328334505847555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537436590111492984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 145ac7cf87f6ce34e9fba382f2636e40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CoffeeTool
+  toolType: 3
 --- !u!1 &3738672511130214552
 GameObject:
   m_ObjectHideFlags: 0
@@ -618,7 +633,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 308
+  m_VersionIndex: 317
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
