@@ -320,12 +320,25 @@ public class RaycasterObj : MonoBehaviour
         {
             InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.ObjectPlaced,heldObject,socket.gameObject));
 
-            BeginSocketRotation(socket, heldObject);
+            CoffeeTool tool = heldObject.GetComponentInParent<CoffeeTool>();
+
+            if (tool != null && tool.ToolType == CoffeeToolType.Portafilter)
+            {
+                BeginSocketRotation(socket, heldObject);
+            }
         });
     }
 
     private void BeginSocketRotation(Socket socket, GameObject placedObject)
     {
+        CoffeeTool tool = placedObject.GetComponentInParent<CoffeeTool>();
+
+        if (tool == null || tool.ToolType != CoffeeToolType.Portafilter)
+        {
+            Debug.LogWarning("Socket rotation requested for a non-portafilter.");
+            return;
+        }
+
         activeRotationSocket = socket;
         activeSocketObject = placedObject;
         socketRotationMode = true;
@@ -345,10 +358,6 @@ public class RaycasterObj : MonoBehaviour
             CancelSocketRotation();
             return;
         }
-
-        activeRotationSocket = socket;
-        activeSocketObject = placedObject;
-        socketRotationMode = true;
 
         if (playerController != null)
         {
