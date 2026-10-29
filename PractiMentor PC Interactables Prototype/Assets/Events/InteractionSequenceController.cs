@@ -7,6 +7,10 @@ public class InteractionSequenceController : MonoBehaviour
     {
         FillPortafilter,
         TampCoffee,
+        SetPortafilter,
+        SetMug,
+        BrewCoffee,
+        //DrinkCoffee,(to be added later)
         Complete
     }
 
@@ -34,11 +38,28 @@ public class InteractionSequenceController : MonoBehaviour
 
     private void OnInteractionCompleted(InteractionCompletedEvent interactionEvent)
     {
-        if (interactionEvent.Type != InteractionType.SliderCompleted)
-            return;
+        switch (interactionEvent.Type)
+        {
+            case InteractionType.SliderCompleted:
+                HandleSliderCompleted(interactionEvent);
+                break;
 
+            case InteractionType.ObjectPlaced:
+                HandleObjectPlaced(interactionEvent);
+                break;
+
+            case InteractionType.SocketRotationCompleted:
+                HandleSocketRotationCompleted(interactionEvent);
+                break;
+        }
+    }
+
+    private void HandleSliderCompleted(InteractionCompletedEvent interactionEvent)
+    {
         if (interactionEvent.PrimaryObject == null || interactionEvent.SecondaryObject == null)
+        {
             return;
+        }
 
         CoffeeTool primaryTool = interactionEvent.PrimaryObject.GetComponentInParent<CoffeeTool>();
 
@@ -47,11 +68,64 @@ public class InteractionSequenceController : MonoBehaviour
         if (primaryTool == null || secondaryTool == null)
             return;
 
-        if(!IsValidForCurrentStep(primaryTool.ToolType, secondaryTool.ToolType))
+        if (!IsValidForCurrentStep(primaryTool.ToolType,secondaryTool.ToolType))
         {
-            Debug.Log("Interaction was not valid for the current step.");
+            Debug.Log("Slider interaction was not valid for the current step.");
             return;
         }
+
+        AdvanceStep();
+    }
+
+    private void HandleObjectPlaced(InteractionCompletedEvent interactionEvent)
+    {
+        if (currentStep != Step.SetPortafilter)
+            return;
+
+        if (interactionEvent.PrimaryObject == null || interactionEvent.SecondaryObject == null)
+        {
+            return;
+        }
+
+        CoffeeTool tool = interactionEvent.PrimaryObject.GetComponentInParent<CoffeeTool>();
+
+        Socket socket = interactionEvent.SecondaryObject.GetComponentInParent<Socket>();
+
+        if (tool == null || socket == null)
+            return;
+
+        if (tool.ToolType != CoffeeToolType.Portafilter)
+            return;
+
+        Debug.Log(
+            "Portafilter placed. Waiting for rotation.");
+    }
+
+    private void HandleSocketRotationCompleted(InteractionCompletedEvent interactionEvent)
+    {
+        if (currentStep != Step.SetPortafilter)
+            return;
+
+        if (interactionEvent.PrimaryObject == null || interactionEvent.SecondaryObject == null)
+        {
+            return;
+        }
+
+        CoffeeTool tool = interactionEvent.PrimaryObject.GetComponentInParent<CoffeeTool>();
+
+        Socket socket = interactionEvent.SecondaryObject.GetComponentInParent<Socket>();
+
+        if (tool == null || socket == null)
+            return;
+
+        if (tool.ToolType != CoffeeToolType.Portafilter)
+        {
+            Debug.Log("Socket rotation completed by the wrong tool.");
+
+            return;
+        }
+
+        Debug.Log("Portafilter rotation completed.");
 
         AdvanceStep();
     }
@@ -78,6 +152,15 @@ public class InteractionSequenceController : MonoBehaviour
                 SetStep(Step.TampCoffee);
                 break;
             case Step.TampCoffee:
+                SetStep(Step.SetPortafilter);
+                break;
+            case Step.SetPortafilter:
+                SetStep(Step.SetMug);
+                break;
+            case Step.SetMug:
+                SetStep(Step.BrewCoffee); 
+                break;
+            case Step.BrewCoffee:
                 SetStep(Step.Complete);
                 SequenceCompleted?.Invoke();
                 break;

@@ -55,6 +55,10 @@ public class RaycasterObj : MonoBehaviour
 
     private bool completingSliderAction;
 
+    private Socket activeRotationSocket;
+    private GameObject activeSocketObject;
+    private bool socketRotationMode;
+
     private enum Hand
     {
         Left,
@@ -219,7 +223,7 @@ public class RaycasterObj : MonoBehaviour
 
                         if (socket.TryOccupySocket(heldObject, out Transform placementPoint))
                         {
-                            PlaceHeldObject(placementPoint, selectedHand);
+                            PlaceHeldObject(socket, placementPoint, selectedHand);
                         }
                         else
                         {
@@ -289,7 +293,7 @@ public class RaycasterObj : MonoBehaviour
     }
 
     //function to place held grabbable (with the animation, assisted by Socket.cs (will be up for modification)
-    void PlaceHeldObject(Transform placementPoint, Hand hand)
+    void PlaceHeldObject(Socket socket, Transform placementPoint, Hand hand)
     {
         GameObject heldObject = GetHeldObject(hand);
 
@@ -303,11 +307,57 @@ public class RaycasterObj : MonoBehaviour
             Physics.IgnoreCollision(objectCollider, playerCollider, false);
 
         heldObject.layer = 0;
-        heldObject.transform.DOMove(placementPoint.position, 0.5f).SetEase(Ease.InOutSine);
+
+        Sequence placementSequence = DOTween.Sequence();
+
+        placementSequence.Join(heldObject.transform.DOMove(placementPoint.position, 0.5f).SetEase(Ease.InOutSine));
+
+        placementSequence.Join(heldObject.transform.DORotateQuaternion(placementPoint.rotation, 0.5f).SetEase(Ease.InOutSine));
 
         SetHeldObject(hand, null);
+
+        placementSequence.OnComplete(() =>
+        {
+            InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.ObjectPlaced,heldObject,socket.gameObject));
+
+            BeginSocketRotation(socket, heldObject);
+        });
     }
 
+    private void BeginSocketRotation(Socket socket, GameObject placedObject)
+    {
+        activeRotationSocket = socket;
+        activeSocketObject = placedObject;
+        socketRotationMode = true;
+
+        SliderTarget sliderTarget = placedObject.GetComponentInChildren<SliderTarget>();
+
+        if(sliderTarget == null)
+        {
+            Debug.LogWarning("Placed portafilter has no SliderTarget!");
+            CancelSocketRotation();
+            return;
+        }
+
+        if (sliderController == null)
+        {
+            Debug.LogError("SliderController is missing.");
+            CancelSocketRotation();
+            return;
+        }
+
+        activeRotationSocket = socket;
+        activeSocketObject = placedObject;
+        socketRotationMode = true;
+
+        if (playerController != null)
+        {
+            playerController.SetPlayerState(Player.PlayerMode.SliderInteraction);
+        }
+
+        sliderController.SetTarget(sliderTarget);
+        sliderController.SetVisible(true);
+    }
     //function to clear the highlighter properly from interactable objects
     private void ClearCurrentInteractable()
     {
@@ -378,6 +428,12 @@ public class RaycasterObj : MonoBehaviour
 
     private void UpdateInteractionSlider()
     {
+        if (socketRotationMode)
+        {
+            UpdateSocketRotationSlider();
+            return;
+        }
+
         if (restoringBetweenSliderActions)
         {
             return;
@@ -441,8 +497,44 @@ public class RaycasterObj : MonoBehaviour
 
     }
 
+    private void UpdateSocketRotationSlider()
+    {
+        if(activeSocketObject == null || activeRotationSocket == null || sliderController == null)
+        {
+            CancelSocketRotation();
+            return;
+        }
+
+        SliderTarget target = activeSocketObject.GetComponentInChildren<SliderTarget>();
+
+        if(target == null)
+        {
+            Debug.LogWarning("Socket rotation object has no SliderTarget.");
+
+            CancelSocketRotation();
+            return;
+        }
+
+        if(playerController != null && playerController.CurrentMode != Player.PlayerMode.SliderInteraction)
+        {
+            playerController.SetPlayerState(Player.PlayerMode.SliderInteraction);
+        }
+
+        sliderController.TargetTransformReached -= OnSliderTargetReached;
+        sliderController.TargetTransformReached += OnSliderTargetReached;
+
+        sliderController.SetVisible(true);
+
+        sliderController.FollowObjectOnScreen(target.transform, playerCamera,new Vector2(120f, 0f));
+    }
     private void OnSliderTargetReached()
     {
+        if (socketRotationMode)
+        {
+            CompleteSocketRotation();
+            return;
+        }
+
         if (completingSliderAction)
             return;
 
@@ -460,6 +552,37 @@ public class RaycasterObj : MonoBehaviour
         CompleteSliderAction();
     }
 
+    private void CompleteSocketRotation()
+    {
+        if(activeSocketObject == null || activeRotationSocket == null)
+        {
+            CancelSocketRotation();
+            return;
+        }
+
+        Transform finalPose = activeRotationSocket.FinalRotationPoint;
+
+        if(finalPose != null)
+        {
+            activeSocketObject.transform.SetPositionAndRotation(finalPose.position, finalPose.rotation);
+        }
+
+        sliderController.TargetTransformReached -= OnSliderTargetReached;
+
+        sliderController.ClearTarget();
+        sliderController.SetVisible(false);
+
+        InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.SocketRotationCompleted,activeSocketObject,activeRotationSocket.gameObject));
+
+        socketRotationMode = false;
+        activeSocketObject = null;
+        activeRotationSocket = null;
+
+        if (playerController != null)
+        {
+            playerController.SetPlayerState(Player.PlayerMode.Navigate);
+        }
+    }
     private void CompleteSliderAction()
     {
         Grabbable grabbable = activeSliderGrabbable;
@@ -482,6 +605,26 @@ public class RaycasterObj : MonoBehaviour
         {
             InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.SliderCompleted,heldObjR,heldObjL));
             FinishSliderInteraction();
+        }
+    }
+
+    private void CancelSocketRotation()
+    {
+        if (sliderController != null)
+        {
+            sliderController.TargetTransformReached -= OnSliderTargetReached;
+
+            sliderController.ClearTarget();
+            sliderController.SetVisible(false);
+        }
+
+        socketRotationMode = false;
+        activeSocketObject = null;
+        activeRotationSocket = null;
+
+        if (playerController != null)
+        {
+            playerController.SetPlayerState(Player.PlayerMode.Navigate);
         }
     }
     private IEnumerator WaitForPointerReleaseThenRestore()

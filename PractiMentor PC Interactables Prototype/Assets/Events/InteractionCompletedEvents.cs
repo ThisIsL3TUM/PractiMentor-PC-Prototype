@@ -5,7 +5,8 @@ public enum InteractionType
     SliderCompleted,
     ObjectPlaced,
     ObjectPickedUp,
-    TimedInteractionCompleted
+    TimedInteractionCompleted,
+    SocketRotationCompleted
 }
 public readonly struct InteractionCompletedEvent
 {
