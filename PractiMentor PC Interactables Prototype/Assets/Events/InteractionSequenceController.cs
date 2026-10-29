@@ -79,9 +79,6 @@ public class InteractionSequenceController : MonoBehaviour
 
     private void HandleObjectPlaced(InteractionCompletedEvent interactionEvent)
     {
-        if (currentStep != Step.SetPortafilter)
-            return;
-
         if (interactionEvent.PrimaryObject == null || interactionEvent.SecondaryObject == null)
         {
             return;
@@ -94,11 +91,23 @@ public class InteractionSequenceController : MonoBehaviour
         if (tool == null || socket == null)
             return;
 
-        if (tool.ToolType != CoffeeToolType.Portafilter)
-            return;
+        if (currentStep == Step.SetPortafilter)
+        {
+            if (tool.ToolType != CoffeeToolType.Portafilter)
+                return;
 
-        Debug.Log(
-            "Portafilter placed. Waiting for rotation.");
+            Debug.Log("Portafilter placed. Waiting for rotation.");
+            return;
+        }
+
+        if (currentStep == Step.SetMug)
+        {
+            if (tool.ToolType != CoffeeToolType.Mug)
+                return;
+
+            Debug.Log("Mug placed. Starting brew step.");
+            AdvanceStep();
+        }
     }
 
     private void HandleSocketRotationCompleted(InteractionCompletedEvent interactionEvent)
