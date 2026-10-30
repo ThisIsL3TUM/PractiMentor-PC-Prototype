@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class InteractionSequenceController : MonoBehaviour
@@ -21,6 +22,7 @@ public class InteractionSequenceController : MonoBehaviour
     [SerializeField] private RaycasterObj raycaster;
 
     public Step CurrentStep => currentStep;
+    public bool IsInteractionLocked { get; private set; }
     public event Action<Step> StepChanged;
     public event Action SequenceCompleted;
 
@@ -50,6 +52,10 @@ public class InteractionSequenceController : MonoBehaviour
 
             case InteractionType.SocketRotationCompleted:
                 HandleSocketRotationCompleted(interactionEvent);
+                break;
+
+            case InteractionType.ClickablePressed:
+                HandleClickablePressed(interactionEvent);
                 break;
         }
     }
@@ -138,6 +144,24 @@ public class InteractionSequenceController : MonoBehaviour
 
         AdvanceStep();
     }
+    private void HandleClickablePressed(InteractionCompletedEvent interactionEvent)
+    {
+        if (currentStep != Step.BrewCoffee)
+            return;
+
+        if(IsInteractionLocked)
+            return;
+        Clickable clickable = interactionEvent.PrimaryObject.GetComponentInParent<Clickable>();
+
+        if (clickable == null)
+            return;
+
+        if(!clickable.IsActivatingWaiting)
+            return;
+
+        StartCoroutine(BrewCoffee(clickable.WaitingTime));
+
+    }
 
     private bool IsValidForCurrentStep(CoffeeToolType first, CoffeeToolType second)
     {
@@ -199,5 +223,22 @@ public class InteractionSequenceController : MonoBehaviour
             return false;
 
         return IsValidForCurrentStep(primaryTool.ToolType, secondaryTool.ToolType);
+    }
+
+    private IEnumerator BrewCoffee(float duration)
+    {
+        IsInteractionLocked = true;
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        IsInteractionLocked = false;
+
+        AdvanceStep(); 
     }
 }

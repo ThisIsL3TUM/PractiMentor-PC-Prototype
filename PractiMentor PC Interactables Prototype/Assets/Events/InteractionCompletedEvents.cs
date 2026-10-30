@@ -6,7 +6,8 @@ public enum InteractionType
     ObjectPlaced,
     ObjectPickedUp,
     TimedInteractionCompleted,
-    SocketRotationCompleted
+    SocketRotationCompleted,
+    ClickablePressed
 }
 public readonly struct InteractionCompletedEvent
 {

@@ -127,6 +127,12 @@ public class RaycasterObj : MonoBehaviour
     }
     private void Update()
     {
+        if (sequenceController != null && sequenceController.IsInteractionLocked)
+        {
+            ClearCurrentInteractable();
+            return;
+        }
+
         if (AnyObjectHeld())
         {
             MoveObject(Hand.Right);
@@ -203,7 +209,12 @@ public class RaycasterObj : MonoBehaviour
                 }
                 else if (hit.transform.CompareTag("Clickable"))
                 {
-                    Debug.Log("You clicked something!");
+                    Clickable clickable = hit.transform.GetComponentInParent<Clickable>();
+
+                    if (clickable != null)
+                    {
+                        InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.ClickablePressed, clickable.gameObject));
+                    }
                 }
                 else if (hitIsSocket && socketCanAcceptHeldItem)
                 {
