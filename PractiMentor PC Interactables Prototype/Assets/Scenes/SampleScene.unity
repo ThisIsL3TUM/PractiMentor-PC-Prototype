@@ -425,6 +425,75 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &176288055
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 176288056}
+  - component: {fileID: 176288057}
+  - component: {fileID: 176288058}
+  m_Layer: 0
+  m_Name: BrewProgressUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &176288056
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176288055}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.956, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 917075036}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &176288057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176288055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 5b5604a192cb05c4c8e19dba1659e976, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 921f0918c026ac24da15bc41d1feae30, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 0
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &176288058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176288055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdbacdc014229eb479bbbdc39c66a20c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BrewProgressUI
+  sequenceController: {fileID: 1830249861}
 --- !u!43 &228944633
 Mesh:
   m_ObjectHideFlags: 0
@@ -3583,6 +3652,7 @@ Transform:
   m_Children:
   - {fileID: 971212290}
   - {fileID: 1410712449}
+  - {fileID: 176288056}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &927157465
@@ -7462,7 +7532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Clickable
   isActivatingWaiting: 1
-  waitingTime: 5
+  waitingTime: 15
 --- !u!43 &1411899496
 Mesh:
   m_ObjectHideFlags: 0
@@ -10934,7 +11004,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abff2c65f4077014fb351b5aebaa761e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionSequenceController
-  currentStep: 1
+  currentStep: 2
   raycaster: {fileID: 2027579906}
 --- !u!4 &1830249862
 Transform:
@@ -12197,18 +12267,6 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1148062076}
-    - target: {fileID: 3298372407693690194, guid: 326d11735d089334aa909b5784faffb8, type: 3}
-      propertyPath: property
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3298372407693690194, guid: 326d11735d089334aa909b5784faffb8, type: 3}
-      propertyPath: tolerance
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3298372407693690194, guid: 326d11735d089334aa909b5784faffb8, type: 3}
-      propertyPath: targetValue
-      value: 45
-      objectReference: {fileID: 0}
     - target: {fileID: 4137501506890557174, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -12223,7 +12281,7 @@ PrefabInstance:
       objectReference: {fileID: 1148062076}
     - target: {fileID: 6644898340073661556, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 480
+      value: 486
       objectReference: {fileID: 0}
     - target: {fileID: 8272717552122999782, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12271,7 +12329,7 @@ PrefabInstance:
       objectReference: {fileID: 536027546}
     - target: {fileID: 8385341091578498490, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 1765
+      value: 1771
       objectReference: {fileID: 0}
     - target: {fileID: 8497993741660236740, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_Mesh

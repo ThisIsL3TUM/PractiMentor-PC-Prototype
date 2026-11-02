@@ -1,0 +1,18 @@
+.brew-progress {
+    width: 320px;
+    padding: 12px;
+    background-color: rgba(35, 25, 20, 0.9);
+    border-radius: 12px;
+    align-items: center;
+}
+
+.brew-progress Label {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.brew-progress ProgressBar {
+    width: 280px;
+    height: 24px;
+}

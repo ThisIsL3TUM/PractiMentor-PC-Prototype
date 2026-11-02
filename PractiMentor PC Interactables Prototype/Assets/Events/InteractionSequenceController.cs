@@ -26,6 +26,10 @@ public class InteractionSequenceController : MonoBehaviour
     public event Action<Step> StepChanged;
     public event Action SequenceCompleted;
 
+    public event Action BrewStarted;
+    public event Action<float> BrewProgressChanged;
+    public event Action BrewCompleted;
+
     private void OnEnable()
     {
         if (raycaster != null)
@@ -246,13 +250,24 @@ public class InteractionSequenceController : MonoBehaviour
     {
         IsInteractionLocked = true;
 
+        duration = Mathf.Max(0.01f, duration);
         float elapsed = 0f;
+
+        BrewStarted?.Invoke();
+        BrewProgressChanged?.Invoke(0f);
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
+
+            float progress = Mathf.Clamp01(elapsed / duration);
+            BrewProgressChanged?.Invoke(progress);
+
             yield return null;
         }
+
+        BrewProgressChanged?.Invoke(1f);
+        BrewCompleted?.Invoke();
 
         IsInteractionLocked = false;
 

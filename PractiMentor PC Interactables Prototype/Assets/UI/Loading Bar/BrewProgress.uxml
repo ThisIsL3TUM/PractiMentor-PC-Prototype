@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Loading%20Bar/BrewProgress.uss?fileID=7433441132597879392&amp;guid=4ebe8e76682156b4dacf6b1246466047&amp;type=3#BrewProgress"/>
+    <ui:VisualElement name="brew-progress" style="flex-grow: 1;">
+        <ui:ProgressBar value="0" title="Brewing..." name="brew-bar" style="align-items: stretch; justify-content: flex-start; align-self: center; width: 186px; height: 24px;"/>
+    </ui:VisualElement>
+</ui:UXML>
