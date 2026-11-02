@@ -173,7 +173,7 @@ public class BezierSliderInteraction : MonoBehaviour
     }
     private void OnSliderValueChanged(ChangeEvent<float> evt)
     {
-        if (!hasTarget || activeTarget == null || targetObject == null || !slider.IsPointerHeld)
+        if (!hasTarget || activeTarget == null || targetObject == null)
             return;
 
         float normalizedValue = Mathf.InverseLerp(slider.lowValue,slider.highValue,evt.newValue);

@@ -18,6 +18,7 @@ public class SliderTarget : MonoBehaviour
     [SerializeField] private TransformProperty property = TransformProperty.Rotation;
     [SerializeField] private Axis axis = Axis.X;
     [SerializeField] private bool useLocalSpace = true;
+    [SerializeField] private float tolerance = 1f;//for scale, this needs to be a lot smaller (e.g. 0.01)
 
     [Header("Slider Values")]
     [SerializeField] private float initialValue = 0f;
@@ -27,7 +28,6 @@ public class SliderTarget : MonoBehaviour
     [Header("Rotation Snapping")]
     [SerializeField] private bool snappingActive;
     [Range(0, 90)][SerializeField] private float rotationSnapAngle = 15f;
-    [SerializeField] private float tolerance = 1f;
 
     public TransformProperty Property => property;
     public Axis TransformAxis => axis;
