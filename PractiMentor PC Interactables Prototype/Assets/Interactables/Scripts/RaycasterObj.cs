@@ -59,6 +59,8 @@ public class RaycasterObj : MonoBehaviour
     private GameObject activeSocketObject;
     private bool socketRotationMode;
 
+    private Socket mugSocket;
+    private bool movingFromSocket;
     private enum Hand
     {
         Left,
@@ -93,7 +95,8 @@ public class RaycasterObj : MonoBehaviour
     [Header ("Raycast")]
     [SerializeField] private float interactableRange = 15f;
 
-
+    [Header("Mug")]
+    [SerializeField] private GameObject drinkMug;
 
     private void Awake()
     {
@@ -194,8 +197,16 @@ public class RaycasterObj : MonoBehaviour
 
                 if (hit.transform.CompareTag("Grabbable"))
                 {
+                    GameObject clickedRoot = GetGrabbableRoot(hit.transform.gameObject);
+
+                    bool isDrinkMug = sequenceController != null && sequenceController.CurrentStep == InteractionSequenceController.Step.DrinkCoffee && clickedRoot == drinkMug;
+
+                    if (isDrinkMug)
+                    {
+                        PickUpMugForDrinking(clickedRoot);
+                    }
                     //checks if things are grabbed or not
-                    if (TryFindFreeHand(hit.transform.gameObject, out Hand selectedHand))
+                    else if (TryFindFreeHand(hit.transform.gameObject, out Hand selectedHand))
                     {
                         Debug.Log("You grabbed it!");
                         PickUpObject(hit.transform.gameObject, selectedHand);
@@ -271,10 +282,12 @@ public class RaycasterObj : MonoBehaviour
         if (!CanUseHand(grabbableRoot, hand)) 
             return;
 
+        movingFromSocket = true;
+
         SetHeldObject(hand, grabbableRoot);
 
         Transform holdPosition = GetHoldPosition(hand);
-        grabbableRoot.transform.DOMove(endValue: holdPosition.position, 0.5f).SetEase(Ease.InOutSine);
+        //grabbableRoot.transform.DOMove(endValue: holdPosition.position, 0.5f).SetEase(Ease.InOutSine);
         grabbableRoot.layer = layerNumber;
 
         Collider objectCollider = grabbableRoot.GetComponent<Collider>();
@@ -283,9 +296,17 @@ public class RaycasterObj : MonoBehaviour
         if (objectCollider != null && playerCollider != null)
             Physics.IgnoreCollision(objectCollider, playerCollider,true);
 
-        
+        StartCoroutine(FinishPickupAnimation(grabbableRoot, holdPosition));
     }
 
+    private IEnumerator FinishPickupAnimation(GameObject grabbableRoot, Transform holdPosition)
+    {
+        Tween pickupTween = grabbableRoot.transform.DOMove(holdPosition.position, 0.5f).SetEase(Ease.InOutSine);
+
+        yield return pickupTween.WaitForCompletion();
+
+        movingFromSocket = false;
+    }
     //fuction to move held grabbable
     void MoveObject(Hand hand)
     {
@@ -293,6 +314,9 @@ public class RaycasterObj : MonoBehaviour
             return;
 
         if (playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction)
+            return;
+
+        if (movingFromSocket)
             return;
 
         GameObject heldObject = GetHeldObject(hand);
@@ -332,6 +356,11 @@ public class RaycasterObj : MonoBehaviour
             InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.ObjectPlaced,heldObject,socket.gameObject));
 
             CoffeeTool tool = heldObject.GetComponentInParent<CoffeeTool>();
+
+            if (tool != null && tool.ToolType == CoffeeToolType.Mug)
+            {
+                mugSocket = socket;
+            }
 
             if (tool != null && tool.ToolType == CoffeeToolType.Portafilter)
             {
@@ -448,6 +477,9 @@ public class RaycasterObj : MonoBehaviour
 
     private void UpdateInteractionSlider()
     {
+        if (movingFromSocket)
+            return;
+
         if (socketRotationMode)
         {
             UpdateSocketRotationSlider();
@@ -459,12 +491,16 @@ public class RaycasterObj : MonoBehaviour
             return;
         }
 
-        SliderTarget rightSliderTarget = heldObjR?.GetComponentInParent<SliderTarget>();
+        SliderTarget rightSliderTarget = GetSliderTarget(heldObjR);
 
-        bool canUseSlider = heldObjR != null && heldObjL != null 
-            && CanInteract(heldObjR) && CanInteract(heldObjL) 
-            && rightSliderTarget != null && sequenceController != null 
-            && sequenceController.CanStartInteraction(heldObjR, heldObjL);
+        bool isDrinkStep = sequenceController != null && sequenceController.CurrentStep == InteractionSequenceController.Step.DrinkCoffee;
+
+        bool hasValidDrinkMug = heldObjR != null && heldObjR.GetComponentInParent<CoffeeTool>()?.ToolType == CoffeeToolType.Mug && GetSliderTarget(heldObjR) != null;
+
+        bool canUseSlider = isDrinkStep ? hasValidDrinkMug && CanInteract(heldObjR) 
+            : heldObjR != null && heldObjL != null &&
+            CanInteract(heldObjR) && CanInteract(heldObjL) &&
+            rightSliderTarget != null && sequenceController.CanStartInteraction(heldObjR, heldObjL);
 
         if (!canUseSlider)
         {
@@ -698,7 +734,7 @@ public class RaycasterObj : MonoBehaviour
         if (heldObjR == null)
             return;
 
-        SliderTarget target = heldObjR.GetComponentInParent<SliderTarget>();
+        SliderTarget target = GetSliderTarget(heldObjR);
 
         if(target == null)
         {
@@ -762,14 +798,16 @@ public class RaycasterObj : MonoBehaviour
     {
         DG.Tweening.Sequence sequence = DOTween.Sequence();
 
-        Transform rightObject = GetManipulatedTransform(Hand.Right);
-        Transform leftObject = GetManipulatedTransform(Hand.Left);
+        GameObject rightObject = GetHeldObject(Hand.Right);
+        GameObject leftObject = GetHeldObject(Hand.Left);
 
-        if (holdPosR != null)
-            sequence.Join(MoveManipulatedObjectTo(Hand.Right, holdPosR));
+        if (rightObject != null && holdPosR != null)
+            //sequence.Join(MoveManipulatedObjectTo(Hand.Right, holdPosR));
+            sequence.Join(rightObject.transform.DOMove(holdPosR.position, 0.5f).SetEase(Ease.InOutCirc));
 
-        if (holdPosL != null)
-            sequence.Join(MoveManipulatedObjectTo(Hand.Left, holdPosL));
+        if (leftObject != null && holdPosL != null)
+            //sequence.Join(MoveManipulatedObjectTo(Hand.Left, holdPosL));
+            sequence.Join(leftObject.transform.DOMove(holdPosL.position, 0.5f).SetEase(Ease.InOutCirc));
 
         sequence.OnComplete(() =>
         {
@@ -786,7 +824,7 @@ public class RaycasterObj : MonoBehaviour
 
     private bool IsSliderKnobStillHeld()
     {
-        return heldObjR!= null && heldObjR.GetComponentInParent<SliderTarget>() != null;
+        return heldObjR!= null && GetSliderTarget(heldObjR) != null;
     }
     private void MoveHeldObjectsToSliderHands(SliderTarget sliderTarget)
     {
@@ -829,10 +867,14 @@ public class RaycasterObj : MonoBehaviour
         if (heldObject == null)
             return null;
 
+        bool isDrinkMug = hand == Hand.Right && heldObject == drinkMug && heldObject.GetComponent<CoffeeTool>()?.ToolType == CoffeeToolType.Mug;
+
+        if (isDrinkMug)
+            return heldObject.transform;
+
         if (hand == Hand.Right)
         {
-            SliderTarget sliderTarget =
-                heldObject.GetComponentInParent<SliderTarget>();
+            SliderTarget sliderTarget = GetSliderTarget(heldObjR);
 
             if (sliderTarget != null)
                 return sliderTarget.transform;
@@ -866,6 +908,28 @@ public class RaycasterObj : MonoBehaviour
         return grabbable != null? grabbable.gameObject: hitObject;
     }
 
+    private void PickUpMugForDrinking(GameObject mug)
+    {
+        if (mugSocket == null || mug == null)
+        {
+            Debug.LogWarning("Can't pick up the drinking mug, socket or mug is missing.");
+            return;
+        }
+
+        if(heldObjR != null)
+        {
+            Debug.LogWarning("Right hand is already occupied.");
+            return;
+        }
+
+        if (!mugSocket.ReleaseObject(mug))
+        {
+            Debug.LogWarning("The mug can't be released from its socket.");
+            return;
+        }
+
+        PickUpObject(mug, Hand.Right);
+    }
     private IEnumerator HoldSliderTarget(float duration)
     {
         float elapsed = 0f;
@@ -901,5 +965,21 @@ public class RaycasterObj : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    private SliderTarget GetSliderTarget(GameObject obj)
+    {
+        if (obj == null)
+            return null;
+
+        SliderTarget target = obj.GetComponent<SliderTarget>();
+
+        if (target == null)
+            target = obj.GetComponentInChildren<SliderTarget>();
+
+        if (target == null)
+            target = obj.GetComponentInParent<SliderTarget>();
+
+        return target;
     }
 }

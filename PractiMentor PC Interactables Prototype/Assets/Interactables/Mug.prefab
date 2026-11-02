@@ -31,7 +31,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8287640188467403567}
+  - {fileID: 789250664632673046}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3130235507951016938
@@ -47,12 +47,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grabbable
   grabbableHandDirection: 2
-  canObjInteract: 0
+  canObjInteract: 1
   canObjDoActionMore: 0
   amountAction: 3
   delayBetweenSliderAction: 0.3
-  isInteractionTimed: 0
-  timedVal: 3
+  isInteractionTimed: 1
+  timedVal: 1.25
 --- !u!114 &646328334505847555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,11 +97,11 @@ Transform:
   m_GameObject: {fileID: 3738672511130214552}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.15, y: -0.15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1164676834768636683}
+  m_Father: {fileID: 789250664632673046}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6047656268235146832
 MonoBehaviour:
@@ -633,7 +633,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 317
+  m_VersionIndex: 335
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -758,3 +758,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InteractablesBase
   indexOfMaterial: 0
   highlightDuration: 0.5
+--- !u!1 &8051790850789563480
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 789250664632673046}
+  - component: {fileID: 183582792438388615}
+  m_Layer: 0
+  m_Name: DrinkPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &789250664632673046
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8051790850789563480}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.15, y: 0.15, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8287640188467403567}
+  m_Father: {fileID: 1164676834768636683}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &183582792438388615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8051790850789563480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a590582ffc7ef7d4d8aa35ba636d46c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderTarget
+  property: 1
+  axis: 0
+  useLocalSpace: 1
+  initialValue: 0
+  targetValue: 60
+  snappingActive: 0
+  rotationSnapAngle: 15
+  tolerance: 1
