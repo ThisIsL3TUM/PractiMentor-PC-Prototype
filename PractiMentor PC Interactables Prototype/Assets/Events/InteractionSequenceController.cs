@@ -222,11 +222,6 @@ public class InteractionSequenceController : MonoBehaviour
         currentStep = nextStep;
         StepChanged?.Invoke(currentStep);
 
-        if (nextStep == Step.DrinkCoffee)
-        {
-            raycaster.BeginDrinking();
-        }
-
         Debug.Log($"Sequence advanced to: {currentStep}");
     }
 
