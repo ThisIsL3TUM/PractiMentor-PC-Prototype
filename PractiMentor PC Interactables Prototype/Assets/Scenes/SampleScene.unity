@@ -10934,7 +10934,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abff2c65f4077014fb351b5aebaa761e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionSequenceController
-  currentStep: 0
+  currentStep: 2
   raycaster: {fileID: 2027579906}
 --- !u!4 &1830249862
 Transform:
@@ -12055,6 +12055,7 @@ MonoBehaviour:
   delayBetweenSliderActions: 0.3
   sequenceController: {fileID: 1830249861}
   interactableRange: 15
+  drinkMug: {fileID: 4426748852440377281}
 --- !u!1001 &3236298215689927469
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12335,13 +12336,18 @@ PrefabInstance:
       objectReference: {fileID: 1344941322}
     - target: {fileID: 6047656268235146832, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
       propertyPath: m_VersionIndex
-      value: 320
+      value: 338
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
+--- !u!1 &4426748852440377281 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1537436590111492984, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
+  m_PrefabInstance: {fileID: 4426748852440377280}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6634972945372503932
 PrefabInstance:
   m_ObjectHideFlags: 0

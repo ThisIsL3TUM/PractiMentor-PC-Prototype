@@ -11,7 +11,7 @@ public class InteractionSequenceController : MonoBehaviour
         SetPortafilter,
         SetMug,
         BrewCoffee,
-        //DrinkCoffee,(to be added later)
+        DrinkCoffee,
         Complete
     }
 
@@ -62,10 +62,24 @@ public class InteractionSequenceController : MonoBehaviour
 
     private void HandleSliderCompleted(InteractionCompletedEvent interactionEvent)
     {
-        if (interactionEvent.PrimaryObject == null || interactionEvent.SecondaryObject == null)
+        if (interactionEvent.PrimaryObject == null)
+
+            return;
+
+        if (currentStep == Step.DrinkCoffee)
         {
+            CoffeeTool mug = interactionEvent.PrimaryObject.GetComponentInParent<CoffeeTool>();
+
+            if(mug != null && mug.ToolType == CoffeeToolType.Mug)
+            {
+                AdvanceStep();
+            }
             return;
         }
+
+        if (interactionEvent.SecondaryObject == null)
+
+            return;
 
         CoffeeTool primaryTool = interactionEvent.PrimaryObject.GetComponentInParent<CoffeeTool>();
 
@@ -194,6 +208,9 @@ public class InteractionSequenceController : MonoBehaviour
                 SetStep(Step.BrewCoffee); 
                 break;
             case Step.BrewCoffee:
+                SetStep(Step.DrinkCoffee);
+                break;
+            case Step.DrinkCoffee:
                 SetStep(Step.Complete);
                 SequenceCompleted?.Invoke();
                 break;
@@ -204,6 +221,11 @@ public class InteractionSequenceController : MonoBehaviour
     {
         currentStep = nextStep;
         StepChanged?.Invoke(currentStep);
+
+        if (nextStep == Step.DrinkCoffee)
+        {
+            raycaster.BeginDrinking();
+        }
 
         Debug.Log($"Sequence advanced to: {currentStep}");
     }

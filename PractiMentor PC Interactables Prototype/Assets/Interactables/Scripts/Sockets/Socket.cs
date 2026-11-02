@@ -25,6 +25,7 @@ public class Socket : MonoBehaviour
     public Transform PlacementPoint => placementPoint;
     public Transform FinalRotationPoint => finalRotationPoint;
 
+    private GameObject occupiedObject;
     public bool CanAccept(GameObject item)
     {
         if (socketBehaviour != SocketStateType.Free || item == null)
@@ -47,9 +48,22 @@ public class Socket : MonoBehaviour
         
 
         socketBehaviour = SocketStateType.Occupied;
+        occupiedObject = item;
         target = placementPoint != null ? placementPoint : transform;
         return true;
     }
 
+    public bool ReleaseObject(GameObject expectedObject)
+    {
+        if(socketBehaviour != SocketStateType.Occupied)
+            return false;
+
+        if(expectedObject != null && occupiedObject != expectedObject)
+            return false;
+
+        occupiedObject = null;
+        socketBehaviour = SocketStateType.Free;
+        return true;
+    }
 }
 

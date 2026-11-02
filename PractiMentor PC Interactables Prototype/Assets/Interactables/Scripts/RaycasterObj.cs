@@ -59,6 +59,7 @@ public class RaycasterObj : MonoBehaviour
     private GameObject activeSocketObject;
     private bool socketRotationMode;
 
+    private Socket mugSocket;
     private enum Hand
     {
         Left,
@@ -93,7 +94,8 @@ public class RaycasterObj : MonoBehaviour
     [Header ("Raycast")]
     [SerializeField] private float interactableRange = 15f;
 
-
+    [Header("Mug")]
+    [SerializeField] private GameObject drinkMug;
 
     private void Awake()
     {
@@ -333,6 +335,11 @@ public class RaycasterObj : MonoBehaviour
 
             CoffeeTool tool = heldObject.GetComponentInParent<CoffeeTool>();
 
+            if (tool != null && tool.ToolType == CoffeeToolType.Mug)
+            {
+                mugSocket = socket;
+            }
+
             if (tool != null && tool.ToolType == CoffeeToolType.Portafilter)
             {
                 BeginSocketRotation(socket, heldObject);
@@ -461,10 +468,14 @@ public class RaycasterObj : MonoBehaviour
 
         SliderTarget rightSliderTarget = heldObjR?.GetComponentInParent<SliderTarget>();
 
-        bool canUseSlider = heldObjR != null && heldObjL != null 
-            && CanInteract(heldObjR) && CanInteract(heldObjL) 
-            && rightSliderTarget != null && sequenceController != null 
-            && sequenceController.CanStartInteraction(heldObjR, heldObjL);
+        bool isDrinkStep = sequenceController != null && sequenceController.CurrentStep == InteractionSequenceController.Step.DrinkCoffee;
+
+        bool hasValidDrinkMug = heldObjR != null && heldObjR.GetComponentInParent<CoffeeTool>()?.ToolType == CoffeeToolType.Mug && heldObjR.GetComponentInParent<SliderTarget>() != null;
+
+        bool canUseSlider = isDrinkStep ? hasValidDrinkMug && CanInteract(heldObjR) 
+            : heldObjR != null && heldObjL != null &&
+            CanInteract(heldObjR) && CanInteract(heldObjL) &&
+            rightSliderTarget != null && sequenceController.CanStartInteraction(heldObjR, heldObjL);
 
         if (!canUseSlider)
         {
@@ -866,6 +877,23 @@ public class RaycasterObj : MonoBehaviour
         return grabbable != null? grabbable.gameObject: hitObject;
     }
 
+    public void BeginDrinking()
+    {
+        if(mugSocket == null || drinkMug == null)
+        {
+            Debug.LogWarning("No drinking, there is no mug or mug socket.");
+            return;
+        }
+
+        if (!mugSocket.ReleaseObject(drinkMug))
+        {
+            Debug.LogWarning("Mug can't release from socket.");
+            return;
+        }
+
+        heldObjR = drinkMug;
+        drinkMug.layer = layerNumber;
+    }
     private IEnumerator HoldSliderTarget(float duration)
     {
         float elapsed = 0f;
