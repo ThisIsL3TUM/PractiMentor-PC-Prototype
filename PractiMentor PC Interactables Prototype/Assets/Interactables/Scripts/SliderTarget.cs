@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class SliderTarget : MonoBehaviour
 {
+    public enum SliderRepresentation
+    {
+        _2D,
+        _3D
+    }
     public enum TransformProperty
     {
         Position, 
@@ -13,7 +18,11 @@ public class SliderTarget : MonoBehaviour
         X, Y, Z
     }
 
-    //MOVEMENT - ROTATION
+    //SLIDER DIMENSION
+    [Header("Slider Dimension")]
+    [SerializeField] SliderRepresentation representation = SliderRepresentation._2D;
+
+    //MOVEMENT
     [Header("Transform")]
     [SerializeField] private TransformProperty property = TransformProperty.Rotation;
     [SerializeField] private Axis axis = Axis.X;
@@ -29,6 +38,7 @@ public class SliderTarget : MonoBehaviour
     [SerializeField] private bool snappingActive;
     [Range(0, 90)][SerializeField] private float rotationSnapAngle = 15f;
 
+    public SliderRepresentation Representation => representation;
     public TransformProperty Property => property;
     public Axis TransformAxis => axis;
     public bool UseLocalSpace => useLocalSpace;

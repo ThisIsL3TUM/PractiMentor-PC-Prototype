@@ -32,7 +32,7 @@ public class RaycasterObj : MonoBehaviour
 
     //slider reference
     [Header("Slider Set Up")]
-    [SerializeField] private BezierSliderInteraction sliderController;
+    [SerializeField] private SliderInteractionController sliderController;
     [SerializeField, Min(0f)] private float delayBetweenSliderActions = 0.3f;
 
     [Header("Workflow")]

@@ -119,12 +119,6 @@ public class BezierSliderInteraction : MonoBehaviour
 
         startingValue = GetStartingValue();
 
-        Debug.Log(
-    $"Slider cycle setup | " +
-    $"Starting Y: {startingValue} | " +
-    $"Target Y: {target.TargetValue} | " +
-    $"Actual Y: {targetObject.localEulerAngles.y}");
-
         targetReached = false;
         hasTarget = false;
 

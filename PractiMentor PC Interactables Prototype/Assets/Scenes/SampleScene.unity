@@ -4361,6 +4361,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1135071517}
   - component: {fileID: 1135071516}
+  - component: {fileID: 1135071518}
   m_Layer: 0
   m_Name: Slider
   m_TagString: Untagged
@@ -4375,7 +4376,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1135071515}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4057e1c4154d9e84db63758db8b8412d, type: 3}
   m_Name: 
@@ -4399,6 +4400,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 900339527}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1135071518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135071515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a835704891a351247949695eb87161e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderInteractionController
+  slider2D: {fileID: 0}
+  slider3D: {fileID: 0}
+  resetDuration: 0.5
+  sliderResistance: 5
 --- !u!1 &1146972686
 GameObject:
   m_ObjectHideFlags: 0
@@ -12121,7 +12138,7 @@ MonoBehaviour:
   holdPosL: {fileID: 1625601920}
   sliderHoldPosR: {fileID: 639486968}
   sliderHoldPosL: {fileID: 1906020549}
-  sliderController: {fileID: 1135071516}
+  sliderController: {fileID: 1135071518}
   delayBetweenSliderActions: 0.3
   sequenceController: {fileID: 1830249861}
   interactableRange: 15
@@ -12192,7 +12209,7 @@ PrefabInstance:
       objectReference: {fileID: 228944633}
     - target: {fileID: 8468029383607143250, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 5659
+      value: 5665
       objectReference: {fileID: 0}
     - target: {fileID: 8698190597907957419, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12244,7 +12261,7 @@ PrefabInstance:
       objectReference: {fileID: 467754699}
     - target: {fileID: 8893865798758973246, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 420
+      value: 426
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12281,7 +12298,7 @@ PrefabInstance:
       objectReference: {fileID: 1148062076}
     - target: {fileID: 6644898340073661556, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 486
+      value: 492
       objectReference: {fileID: 0}
     - target: {fileID: 8272717552122999782, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12329,7 +12346,7 @@ PrefabInstance:
       objectReference: {fileID: 536027546}
     - target: {fileID: 8385341091578498490, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 1771
+      value: 1777
       objectReference: {fileID: 0}
     - target: {fileID: 8497993741660236740, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_Mesh
@@ -12414,7 +12431,7 @@ PrefabInstance:
       objectReference: {fileID: 1344941322}
     - target: {fileID: 6047656268235146832, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
       propertyPath: m_VersionIndex
-      value: 341
+      value: 347
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12573,7 +12590,7 @@ PrefabInstance:
       objectReference: {fileID: 739718083}
     - target: {fileID: 8750285503508619209, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: m_VersionIndex
-      value: 411
+      value: 417
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
