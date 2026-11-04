@@ -549,6 +549,9 @@ public class RaycasterObj : MonoBehaviour
 
         sliderController.SetTarget(rightSliderTarget);
 
+        if(rightSliderTarget.Representation == SliderTarget.SliderRepresentation._3D)
+            sliderController.FollowWorldTarget(rightSliderTarget.SliderAnchor);
+
         sliderController.FollowObjectOnScreen(sliderHoldPosR,playerCamera,new Vector2(120f, 0f));
 
     }
@@ -581,7 +584,15 @@ public class RaycasterObj : MonoBehaviour
 
         sliderController.SetVisible(true);
 
-        sliderController.FollowObjectOnScreen(target.transform, playerCamera,new Vector2(120f, 0f));
+
+        if (target.Representation == SliderTarget.SliderRepresentation._3D)
+        {
+            sliderController.FollowWorldTarget(target.SliderAnchor);
+        }
+        else
+        {
+            sliderController.FollowObjectOnScreen(target.transform,playerCamera,new Vector2(120f, 0f));
+        }
     }
     private void OnSliderTargetReached()
     {

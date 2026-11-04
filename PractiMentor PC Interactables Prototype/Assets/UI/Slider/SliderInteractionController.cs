@@ -345,4 +345,8 @@ public class SliderInteractionController : MonoBehaviour
     {
         activeInput?.FollowObjectOnScreen(target, camera, offset);
     }
+    public void FollowWorldTarget(Transform target)
+    {
+        activeInput?.FollowWorldTarget(target,Vector3.zero);
+    }
 }

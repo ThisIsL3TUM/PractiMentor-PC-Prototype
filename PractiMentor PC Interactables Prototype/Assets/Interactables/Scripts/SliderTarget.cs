@@ -38,6 +38,9 @@ public class SliderTarget : MonoBehaviour
     [SerializeField] private bool snappingActive;
     [Range(0, 90)][SerializeField] private float rotationSnapAngle = 15f;
 
+    [Header("Slider Display")]
+    [SerializeField] private Transform sliderAnchor;
+
     public SliderRepresentation Representation => representation;
     public TransformProperty Property => property;
     public Axis TransformAxis => axis;
@@ -47,5 +50,7 @@ public class SliderTarget : MonoBehaviour
     public bool SnappingActive => snappingActive;
     public float RotationSnapAngle => rotationSnapAngle;
     public float Tolerance => tolerance;
-
+    public Transform SliderAnchor => sliderAnchor != null
+        ? sliderAnchor
+        : transform;
 }

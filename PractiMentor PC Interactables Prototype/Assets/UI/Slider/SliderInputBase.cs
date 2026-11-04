@@ -20,4 +20,5 @@ public abstract class SliderInputBase : MonoBehaviour
     public virtual void ResetTimedProgress() { }
     public virtual void SetAutomaticResetEnabled(bool enabled) { }
     public virtual void FollowObjectOnScreen(Transform target, Camera camera, Vector2 offset){}
+    public virtual void FollowWorldTarget(Transform target, Vector3 offset){}
 }
