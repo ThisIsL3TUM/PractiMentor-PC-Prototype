@@ -2259,7 +2259,7 @@ PrefabInstance:
       objectReference: {fileID: 927157465}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 364
+      value: 367
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -4214,7 +4214,7 @@ PrefabInstance:
     - target: {fileID: 2890370587138310038, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 927157465}
+      objectReference: {fileID: 524245574}
     - target: {fileID: 3143115035354930113, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Name
       value: Socket (3)
@@ -4265,7 +4265,7 @@ PrefabInstance:
       objectReference: {fileID: 524245574}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 364
+      value: 367
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -4376,15 +4376,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1135071515}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4057e1c4154d9e84db63758db8b8412d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BezierSliderInteraction
   uiDocument: {fileID: 900339526}
   sliderElementName: interaction-slider
-  resetDuration: 0.5
-  sliderResistance: 3
 --- !u!4 &1135071517
 Transform:
   m_ObjectHideFlags: 0
@@ -4412,7 +4410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a835704891a351247949695eb87161e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SliderInteractionController
-  slider2D: {fileID: 0}
+  slider2D: {fileID: 1135071516}
   slider3D: {fileID: 0}
   resetDuration: 0.5
   sliderResistance: 5
@@ -7929,7 +7927,7 @@ PrefabInstance:
     - target: {fileID: 2890370587138310038, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 927157465}
+      objectReference: {fileID: 804974717}
     - target: {fileID: 3143115035354930113, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Name
       value: Socket (4)
@@ -7980,7 +7978,7 @@ PrefabInstance:
       objectReference: {fileID: 804974717}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 364
+      value: 367
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -9607,7 +9605,7 @@ PrefabInstance:
       objectReference: {fileID: 1295036553}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 352
+      value: 355
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -11021,7 +11019,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abff2c65f4077014fb351b5aebaa761e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionSequenceController
-  currentStep: 2
+  currentStep: 0
   raycaster: {fileID: 2027579906}
 --- !u!4 &1830249862
 Transform:
@@ -12209,7 +12207,7 @@ PrefabInstance:
       objectReference: {fileID: 228944633}
     - target: {fileID: 8468029383607143250, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 5665
+      value: 5668
       objectReference: {fileID: 0}
     - target: {fileID: 8698190597907957419, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12261,7 +12259,7 @@ PrefabInstance:
       objectReference: {fileID: 467754699}
     - target: {fileID: 8893865798758973246, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 426
+      value: 429
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12298,7 +12296,7 @@ PrefabInstance:
       objectReference: {fileID: 1148062076}
     - target: {fileID: 6644898340073661556, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 492
+      value: 495
       objectReference: {fileID: 0}
     - target: {fileID: 8272717552122999782, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12346,7 +12344,7 @@ PrefabInstance:
       objectReference: {fileID: 536027546}
     - target: {fileID: 8385341091578498490, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 1777
+      value: 1780
       objectReference: {fileID: 0}
     - target: {fileID: 8497993741660236740, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_Mesh
@@ -12431,7 +12429,7 @@ PrefabInstance:
       objectReference: {fileID: 1344941322}
     - target: {fileID: 6047656268235146832, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
       propertyPath: m_VersionIndex
-      value: 347
+      value: 350
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12513,7 +12511,7 @@ PrefabInstance:
       objectReference: {fileID: 916249518}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 364
+      value: 367
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -12590,7 +12588,7 @@ PrefabInstance:
       objectReference: {fileID: 739718083}
     - target: {fileID: 8750285503508619209, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: m_VersionIndex
-      value: 417
+      value: 420
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

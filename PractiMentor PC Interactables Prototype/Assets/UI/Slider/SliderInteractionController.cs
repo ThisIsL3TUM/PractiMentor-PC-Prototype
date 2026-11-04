@@ -280,6 +280,7 @@ public class SliderInteractionController : MonoBehaviour
     {
         if (activeInput != null)
         {
+            activeInput.ResetTimedProgress();
             activeInput.ValueChanged -= OnValueChanged;
             activeInput.SetVisible(false);
         }
