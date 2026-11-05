@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 
+[ExecuteAlways]
 public class WorldBezierSliderInput : SliderInputBase
 {
     [Header("Curve")]
@@ -38,12 +39,22 @@ public class WorldBezierSliderInput : SliderInputBase
         if(interactionCamera == null)
             interactionCamera = Camera.main;
 
+        if (lineRenderer != null)
+            lineRenderer.useWorldSpace = false;
+
         DrawCurve();
         ApplyValue(1f, false);
     }
     private void Update()
     {
-        if(!isDragging && Input.GetMouseButtonDown(0) && IsHandleSelected())
+        if (!Application.isPlaying)
+        {
+            DrawCurve();
+            ApplyValue(normalizedValue, false);
+            return;
+        }
+
+        if (!isDragging && Input.GetMouseButtonDown(0) && IsHandleSelected())
         {
             resetTween?.Kill();
             isDragging = true;
@@ -58,6 +69,17 @@ public class WorldBezierSliderInput : SliderInputBase
 
             if (normalizedValue > 0.001f)
                 ScheduleReset();
+        }
+    }
+    private void OnValidate()
+    {
+        if (!Application.isPlaying)
+        {
+            if (lineRenderer != null)
+                lineRenderer.useWorldSpace = false;
+
+            DrawCurve();
+            ApplyValue(normalizedValue, false);
         }
     }
     private bool IsHandleSelected()
@@ -83,15 +105,15 @@ public class WorldBezierSliderInput : SliderInputBase
 
         for(int i = 0; i <= curveSamples; i++)
         {
-            float t = i / (float)curveSamples;
-            Vector3 point = EvaluateCurve(t);
+            float curveT = i / (float)curveSamples;
+            Vector3 point = EvaluateCurve(curveT);
 
             float distance = DistanceToRay(point, mouseRay);
 
             if(distance < closestDistance)
             {
                 closestDistance = distance;
-                closestT = t;
+                closestT = 1f - curveT;
             }
         }
 
@@ -135,7 +157,7 @@ public class WorldBezierSliderInput : SliderInputBase
         normalizedValue = Mathf.Clamp01(value);
 
         if(handle != null)
-            handle.position = EvaluateCurve(normalizedValue);
+            handle.position = EvaluateCurve(GetCurveT(normalizedValue));
 
         if(notify)
             RaiseValueChanged(normalizedValue);
@@ -163,7 +185,11 @@ public class WorldBezierSliderInput : SliderInputBase
         for (int i = 0; i <= curveSamples; i++)
         {
             float t = i / (float)curveSamples;
-            lineRenderer.SetPosition(i, EvaluateCurve(t));
+
+            Vector3 worldPoint = EvaluateCurve(1f - t);
+            Vector3 localPoint = visualRoot.InverseTransformPoint(worldPoint);
+
+            lineRenderer.SetPosition(i, localPoint);
         }
     }
     public override void FollowWorldTarget(Transform target,Vector3 localOffset)
@@ -179,7 +205,11 @@ public class WorldBezierSliderInput : SliderInputBase
     {
         if (visualRoot == null || followTarget == null) return;
 
-        visualRoot.position = followTarget.position;
-        visualRoot.rotation = followTarget.rotation;
+        visualRoot.SetPositionAndRotation(followTarget.position,followTarget.rotation);
+    }
+
+    private float GetCurveT(float sliderValue)
+    {
+        return 1f - sliderValue;
     }
 }
