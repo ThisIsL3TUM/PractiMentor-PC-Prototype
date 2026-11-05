@@ -31,6 +31,8 @@ public class WorldBezierSliderInput : SliderInputBase
 
     private Tween resetTween;
 
+    private static readonly Quaternion SliderPlaneRotation = Quaternion.Euler(-90f, 180f, 0f);
+
     public override bool IsPointerHeld => isDragging;
     public override float NormalizedValue => normalizedValue;
 
