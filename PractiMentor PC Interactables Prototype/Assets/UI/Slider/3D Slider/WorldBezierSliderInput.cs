@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class WorldBezierSliderInput : SliderInputBase
 {
@@ -18,10 +19,16 @@ public class WorldBezierSliderInput : SliderInputBase
     [SerializeField] private LayerMask sliderLayer;
     [SerializeField, Min(8)] private int curveSamples = 32;
 
+    [Header("Resets")]
+    [SerializeField] private float resetDelay = 0.5f;
+    [SerializeField] private float resetDuration = 1.5f;
+
     private float normalizedValue = 1f;
     private bool isDragging;
 
     private Transform followTarget;
+
+    private Tween resetTween;
 
     public override bool IsPointerHeld => isDragging;
     public override float NormalizedValue => normalizedValue;
@@ -37,20 +44,33 @@ public class WorldBezierSliderInput : SliderInputBase
     private void Update()
     {
         if(!isDragging && Input.GetMouseButtonDown(0) && IsHandleSelected())
+        {
+            resetTween?.Kill();
             isDragging = true;
+        }
 
         if (isDragging && Input.GetMouseButton(0))
             SetValueFromMouse();
 
         if(isDragging && Input.GetMouseButtonUp(0))
+        {
             isDragging = false;
+
+            if (normalizedValue > 0.001f)
+                ScheduleReset();
+        }
     }
     private bool IsHandleSelected()
     {
         Ray ray = interactionCamera.ScreenPointToRay(Input.mousePosition);
 
-        if(!Physics.Raycast(ray, out RaycastHit hit, 100f, sliderLayer))
+        if (!Physics.Raycast(ray, out RaycastHit hit, 100f, sliderLayer))
+        {
+            Debug.Log("3D slider: no raycast hit");
             return false;
+        }
+
+        Debug.Log($"3D slider hit: {hit.transform.name}, layer: {hit.transform.gameObject.layer}");
 
         return hit.transform == handle || hit.transform.IsChildOf(handle);
     }
@@ -95,6 +115,17 @@ public class WorldBezierSliderInput : SliderInputBase
                3f * inverse * t * t * controlPoint2.position +
                t * t * t * endPoint.position;
     }
+    private void ScheduleReset()
+    {
+        resetTween?.Kill();
+
+        resetTween = DOTween.To(() => normalizedValue, SetValue, 1f, resetDuration).SetDelay(resetDelay).SetEase(Ease.InOutCirc).OnComplete(() => resetTween = null);
+    }
+    private void OnDisable()
+    {
+        resetTween?.Kill();
+        resetTween = null;
+    }
     public override void SetValue(float value)
     {
         ApplyValue(value, true);
@@ -111,6 +142,9 @@ public class WorldBezierSliderInput : SliderInputBase
     }
     public override void ResetSlider()
     {
+        resetTween?.Kill();
+        resetTween = null;
+
         isDragging = false;
         ApplyValue(1f, false);
     }
