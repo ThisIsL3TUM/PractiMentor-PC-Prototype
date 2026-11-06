@@ -392,6 +392,18 @@ public class RaycasterObj : MonoBehaviour
             return;
         }
 
+        activeSliderGrabbable = sliderTarget.GetComponentInParent<Grabbable>();
+
+        if (activeSliderGrabbable == null)
+        {
+            activeSliderGrabbable = placedObject.GetComponentInParent<Grabbable>();
+        }
+
+        if (activeSliderGrabbable == null)
+        {
+            activeSliderGrabbable = placedObject.GetComponentInChildren<Grabbable>();
+        }
+
         if (sliderController == null)
         {
             Debug.LogError("SliderController is missing.");
@@ -524,9 +536,8 @@ public class RaycasterObj : MonoBehaviour
 
         if (enteringSliderMode)
         {
-            Grabbable grabbable = heldObjR.GetComponentInParent<Grabbable>();
+            activeSliderGrabbable = GetGrabbableForSliderTarget(rightSliderTarget);
 
-            activeSliderGrabbable = grabbable;
             completedSliderActions = 0;
             sliderCompleted = false;
             sliderReady = false;
@@ -596,27 +607,33 @@ public class RaycasterObj : MonoBehaviour
     }
     private void OnSliderTargetReached()
     {
-        if (socketRotationMode)
-        {
-            CompleteSocketRotation();
-            return;
-        }
+        //if (socketRotationMode)
+        //{
+           // CompleteSocketRotation();
+           // return;
+       // }
 
         if (completingSliderAction)
             return;
 
-        completingSliderAction = true;
+        //completingSliderAction = true;
 
-        Grabbable grabbable = heldObjR?.GetComponentInParent<Grabbable>();
+        Grabbable grabbable = activeSliderGrabbable;
 
         if(grabbable != null && grabbable.IsInteractionTimed)
         {
+            completingSliderAction = true;
             holdingTimedSliderTarget = true;
             timedSliderRoutine = StartCoroutine(HoldSliderTarget(grabbable.TimeAmount));
             return;
         }
 
-        CompleteSliderAction();
+        //CompleteSliderAction();
+        if (socketRotationMode)
+        {
+            CompleteSocketRotation();
+            return;
+        }
     }
 
     private void CompleteSocketRotation()
@@ -947,12 +964,12 @@ public class RaycasterObj : MonoBehaviour
 
         while (true)
         {
-            if (!IsSliderKnobStillHeld() || sliderController == null)
-            {
-                sliderController?.ResetTimedProgress();
-                FinishSliderInteraction();
-                yield break;
-            }
+           // if (!IsSliderKnobStillHeld() || sliderController == null)
+           // {
+               // sliderController?.ResetTimedProgress();
+               // FinishSliderInteraction();
+               // yield break;
+           // }
 
             if (!sliderController.IsPointerHeld || !sliderController.IsTargetReached)
             {
@@ -970,14 +987,29 @@ public class RaycasterObj : MonoBehaviour
 
             if (elapsed >= duration)
             {
-                CompleteSliderAction();
+                if (socketRotationMode)
+                    CompleteSocketRotation();
+                else
+                    CompleteSliderAction();
+
                 yield break;
             }
 
             yield return null;
         }
     }
+    private Grabbable GetGrabbableForSliderTarget(SliderTarget sliderTarget)
+    {
+        if (sliderTarget == null)
+            return null;
 
+        Grabbable grabbable = sliderTarget.GetComponentInParent<Grabbable>();
+
+        if (grabbable != null)
+            return grabbable;
+
+        return heldObjR?.GetComponentInParent<Grabbable>();
+    }
     private SliderTarget GetSliderTarget(GameObject obj)
     {
         if (obj == null)

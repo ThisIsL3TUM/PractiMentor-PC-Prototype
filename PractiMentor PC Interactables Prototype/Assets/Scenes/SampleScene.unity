@@ -11941,9 +11941,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1845947745}
-  - component: {fileID: 1845947746}
   - component: {fileID: 1845947748}
   - component: {fileID: 1845947747}
+  - component: {fileID: 1845947749}
   m_Layer: 9
   m_Name: Handle
   m_TagString: Untagged
@@ -11966,27 +11966,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 705807505}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1845947746
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1845947744}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.25, y: 1.25, z: 1.25}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!33 &1845947747
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -11994,7 +11973,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1845947744}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &1845947748
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12044,6 +12023,27 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!135 &1845947749
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1845947744}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.75
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1899906416
 GameObject:
   m_ObjectHideFlags: 0
@@ -12722,6 +12722,18 @@ PrefabInstance:
     - target: {fileID: 7906862368756265056, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_Name
       value: Portafilter
+      objectReference: {fileID: 0}
+    - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
+      propertyPath: timedVal
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
+      propertyPath: canObjDoActionMore
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
+      propertyPath: isInteractionTimed
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8468029383607143250, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_Mesh

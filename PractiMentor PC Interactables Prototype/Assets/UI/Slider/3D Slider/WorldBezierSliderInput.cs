@@ -69,7 +69,7 @@ public class WorldBezierSliderInput : SliderInputBase
         {
             isDragging = false;
 
-            if (normalizedValue > 0.001f)
+            if (normalizedValue < 0.999f)
                 ScheduleReset();
         }
     }
