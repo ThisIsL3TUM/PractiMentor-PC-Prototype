@@ -607,16 +607,10 @@ public class RaycasterObj : MonoBehaviour
     }
     private void OnSliderTargetReached()
     {
-        //if (socketRotationMode)
-        //{
-           // CompleteSocketRotation();
-           // return;
-       // }
-
         if (completingSliderAction)
             return;
 
-        //completingSliderAction = true;
+        completingSliderAction = true;
 
         Grabbable grabbable = activeSliderGrabbable;
 
@@ -628,12 +622,12 @@ public class RaycasterObj : MonoBehaviour
             return;
         }
 
-        //CompleteSliderAction();
-        if (socketRotationMode)
-        {
-            CompleteSocketRotation();
-            return;
-        }
+        CompleteSliderAction();
+       // if (socketRotationMode)
+       // {
+            //CompleteSocketRotation();
+           // return;
+       // }
     }
 
     private void CompleteSocketRotation()
@@ -671,6 +665,14 @@ public class RaycasterObj : MonoBehaviour
     {
         Grabbable grabbable = activeSliderGrabbable;
 
+        Debug.Log(
+        $"CompleteSliderAction: grabbable={grabbable}, " +
+        $"multiple={grabbable?.CanActionMultiple}, " +
+        $"completed={completedSliderActions}, " +
+        $"count={grabbable?.ActionCount}, " +
+        $"pointerHeld={sliderController?.IsPointerHeld}"
+    );
+
         if (grabbable == null)
         {
             FinishSliderInteraction();
@@ -680,6 +682,8 @@ public class RaycasterObj : MonoBehaviour
         completedSliderActions++;
 
         bool needsAnotherAction = grabbable.CanActionMultiple && completedSliderActions < grabbable.ActionCount;
+
+        Debug.Log($"Needs another action: {needsAnotherAction}");
 
         if (needsAnotherAction)
         {
@@ -713,8 +717,12 @@ public class RaycasterObj : MonoBehaviour
     }
     private IEnumerator WaitForPointerReleaseThenRestore()
     {
+        Debug.Log("Waiting for 3D slider pointer release.");
+
         while (sliderController != null && sliderController.IsPointerHeld)
             yield return null;
+
+        Debug.Log("Pointer released; restoring slider.");
 
         float delay = activeSliderGrabbable != null
         ? activeSliderGrabbable.DelayBetweenSliderAction
@@ -759,8 +767,12 @@ public class RaycasterObj : MonoBehaviour
 
     private void PrepareNextSliderAction()
     {
+
         if (heldObjR == null)
+        {
+            FinishSliderInteraction();
             return;
+        }
 
         SliderTarget target = GetSliderTarget(heldObjR);
 
@@ -770,11 +782,22 @@ public class RaycasterObj : MonoBehaviour
             return;
         }
 
-        sliderController.RearmTarget(target);
-
+        restoringBetweenSliderActions = false;
         sliderCompleted = false;
         sliderReady = true;
         completingSliderAction = false;
+
+        sliderController.SetAutomaticResetEnabled(false);
+        sliderController.RearmTarget(target);
+
+        if (target.Representation == SliderTarget.SliderRepresentation._3D)
+        {
+            sliderController.FollowWorldTarget(target.SliderAnchor);
+        }
+        else
+        {
+            sliderController.FollowObjectOnScreen(target.transform, playerCamera,new Vector2(120f, 0f));
+        }
 
         sliderController.SetVisible(true);
     }
@@ -782,11 +805,8 @@ public class RaycasterObj : MonoBehaviour
     {
         completingSliderAction = false;
 
-        if (timedSliderRoutine != null)
-        {
-            StopCoroutine(timedSliderRoutine);
-            timedSliderRoutine = null;
-        }
+        if (sliderController != null)
+            sliderController.SetAutomaticResetEnabled(true);
 
         holdingTimedSliderTarget = false;
         sliderCompleted = true;

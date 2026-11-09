@@ -12725,15 +12725,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: timedVal
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: canObjDoActionMore
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: isInteractionTimed
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8468029383607143250, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_Mesh
