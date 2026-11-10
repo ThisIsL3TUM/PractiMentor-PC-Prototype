@@ -33,6 +33,11 @@ public class HandController : MonoBehaviour
     public GameObject HeldRight => heldObjR;
     public GameObject HeldLeft => heldObjL;
 
+    public Transform NormalHoldRight => holdPosR;
+    public Transform NormalHoldLeft => holdPosL;
+    public Transform SliderHoldRight => sliderHoldPosR;
+    public Transform SliderHoldLeft => sliderHoldPosL;
+
     public bool AnyObjectHeld => heldObjR != null || heldObjL != null;
 
     private void Awake()

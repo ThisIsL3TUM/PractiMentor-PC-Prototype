@@ -2,6 +2,7 @@ using DG.Tweening;
 using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.InputSystem;
 
 //this handles too many things (raycast, hovering, picking objs, movement, socket stuff), needs to be broken down 
 public class RaycasterObj : MonoBehaviour
@@ -18,14 +19,6 @@ public class RaycasterObj : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private Player playerController;
     [SerializeField] private HandController handController;
-
-    //detects right & left hand positions to hold grabbables
-    [Header("Hand Position Set Up")]
-    [SerializeField] private Transform holdPosR;//for right hand
-    [SerializeField] private Transform holdPosL;//for left hand
-
-    [SerializeField] private Transform sliderHoldPosR;
-    [SerializeField] private Transform sliderHoldPosL;
 
     //slider reference
     [Header("Slider Set Up")]
@@ -87,6 +80,8 @@ public class RaycasterObj : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("RaycasterObj started.", this);
+
         playerCamera = Camera.main;
 
         if(sliderController != null)
@@ -94,6 +89,8 @@ public class RaycasterObj : MonoBehaviour
     }
     private void Update()
     {
+        //Debug.Log("RaycasterObj is updating.", this);
+
         if (sequenceController != null && sequenceController.IsInteractionLocked)
         {
             ClearCurrentInteractable();
@@ -156,9 +153,12 @@ public class RaycasterObj : MonoBehaviour
                 ClearCurrentInteractable();
             }
 
-            
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            bool leftMousePressed = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+            if (leftMousePressed)
             {
+                Debug.Log(
+        $"Clicked object: {hit.transform.name}",
+        this);
 
                 if (hit.transform.CompareTag("Grabbable"))
                 {
@@ -337,10 +337,31 @@ public class RaycasterObj : MonoBehaviour
 
         bool hasValidDrinkMug = handController.HeldRight != null && handController.HeldRight.GetComponentInParent<CoffeeTool>()?.ToolType == CoffeeToolType.Mug && GetSliderTarget(handController.HeldRight) != null;
 
-        bool canUseSlider = isDrinkStep ? hasValidDrinkMug && CanInteract(handController.HeldRight) 
-            : handController.HeldRight != null && handController.HeldLeft != null &&
-            CanInteract(handController.HeldRight) && CanInteract(handController.HeldLeft) &&
-            rightSliderTarget != null && sequenceController.CanStartInteraction(handController.HeldRight, handController.HeldLeft);
+        bool rightHeld = handController.HeldRight != null;
+
+        bool leftHeld = handController.HeldLeft != null;
+
+        bool rightCanInteract = rightHeld && CanInteract(handController.HeldRight);
+
+        bool leftCanInteract = leftHeld && CanInteract(handController.HeldLeft);
+
+        bool validSequencePair = sequenceController != null && rightHeld && leftHeld && sequenceController.CanStartInteraction(handController.HeldRight, handController.HeldLeft);
+
+        Debug.Log(
+            $"Interaction gate | " +
+            $"RightHeld={rightHeld}, " +
+            $"LeftHeld={leftHeld}, " +
+            $"RightAction={rightCanInteract}, " +
+            $"LeftAction={leftCanInteract}, " +
+            $"RightSliderTarget={rightSliderTarget != null}, " +
+            $"ValidPair={validSequencePair}",
+            this);
+
+        bool canUseSlider = isDrinkStep
+            ? hasValidDrinkMug && CanInteract(handController.HeldRight)
+            : sequenceController != null && handController.HeldRight != null &&
+            handController.HeldLeft != null && CanInteract(handController.HeldRight) &&
+            CanInteract(handController.HeldLeft) && rightSliderTarget != null && sequenceController.CanStartInteraction(handController.HeldRight,handController.HeldLeft);
 
         if (!canUseSlider)
         {
@@ -391,7 +412,7 @@ public class RaycasterObj : MonoBehaviour
         if(rightSliderTarget.Representation == SliderTarget.SliderRepresentation._3D)
             sliderController.FollowWorldTarget(rightSliderTarget.SliderAnchor);
 
-        sliderController.FollowObjectOnScreen(sliderHoldPosR,playerCamera,new Vector2(120f, 0f));
+        sliderController.FollowObjectOnScreen(handController.SliderHoldRight, playerCamera,new Vector2(120f, 0f));
 
     }
 
@@ -503,6 +524,7 @@ public class RaycasterObj : MonoBehaviour
 
         if (grabbable == null)
         {
+            Debug.LogError("Slider completed, but activeSliderGrabbable is null.",this);
             FinishSliderInteraction();
             return;
         }
@@ -519,6 +541,12 @@ public class RaycasterObj : MonoBehaviour
         }
         else
         {
+            Debug.Log(
+        $"Emitting SliderCompleted. " +
+        $"Right: {handController.HeldRight}, " +
+        $"Left: {handController.HeldLeft}",
+        this);
+
             InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.SliderCompleted,handController.HeldRight, handController.HeldLeft));
             FinishSliderInteraction();
         }
@@ -677,13 +705,13 @@ public class RaycasterObj : MonoBehaviour
         GameObject rightObject = handController.GetHeldObject(HandController.Hand.Right);
         GameObject leftObject = handController.GetHeldObject(HandController.Hand.Left);
 
-        if (rightObject != null && holdPosR != null)
+        if (rightObject != null && handController.NormalHoldRight != null)
             //sequence.Join(MoveManipulatedObjectTo(Hand.Right, holdPosR));
-            sequence.Join(rightObject.transform.DOMove(holdPosR.position, 0.5f).SetEase(Ease.InOutCirc));
+            sequence.Join(rightObject.transform.DOMove(handController.NormalHoldRight.position, 0.5f).SetEase(Ease.InOutCirc));
 
-        if (leftObject != null && holdPosL != null)
+        if (leftObject != null && handController.NormalHoldLeft != null)
             //sequence.Join(MoveManipulatedObjectTo(Hand.Left, holdPosL));
-            sequence.Join(leftObject.transform.DOMove(holdPosL.position, 0.5f).SetEase(Ease.InOutCirc));
+            sequence.Join(leftObject.transform.DOMove(handController.NormalHoldLeft.position, 0.5f).SetEase(Ease.InOutCirc));
 
         sequence.OnComplete(() =>
         {
@@ -715,14 +743,14 @@ public class RaycasterObj : MonoBehaviour
         rightObject?.DOKill();
         leftObject?.DOKill();
 
-        if (rightObject != null && sliderHoldPosR != null)
+        if (rightObject != null && handController.SliderHoldRight != null)
         {
-            sequence.Join(MoveManipulatedObjectTo(HandController.Hand.Right, sliderHoldPosR));
+            sequence.Join(MoveManipulatedObjectTo(HandController.Hand.Right, handController.SliderHoldRight));
         }
 
-        if (leftObject != null && sliderHoldPosL != null)
+        if (leftObject != null && handController.SliderHoldLeft != null)
         {
-            sequence.Join(MoveManipulatedObjectTo(HandController.Hand.Left, sliderHoldPosL));
+            sequence.Join(MoveManipulatedObjectTo(HandController.Hand.Left, handController.SliderHoldLeft));
         }
 
         sequence.OnComplete(() =>

@@ -32,8 +32,13 @@ public class InteractionSequenceController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (raycaster != null)
-            raycaster.InteractionCompleted += OnInteractionCompleted;
+        Debug.Log("InteractionSequenceController enabled.", this);
+
+        SubscribeToRaycaster();
+    }
+    private void Start()
+    {
+        SubscribeToRaycaster();
     }
 
     private void OnDisable()
@@ -42,8 +47,32 @@ public class InteractionSequenceController : MonoBehaviour
             raycaster.InteractionCompleted -= OnInteractionCompleted;
     }
 
+    private void SubscribeToRaycaster()
+    {
+        if (raycaster == null)
+        {
+            Debug.LogError(
+                "InteractionSequenceController has no RaycasterObj reference.",
+                this);
+            return;
+        }
+
+        raycaster.InteractionCompleted -= OnInteractionCompleted;
+
+        raycaster.InteractionCompleted += OnInteractionCompleted;
+
+        Debug.Log(
+            $"InteractionSequenceController subscribed to {raycaster.name}.",
+            this);
+    }
+
     private void OnInteractionCompleted(InteractionCompletedEvent interactionEvent)
     {
+        Debug.Log(
+        $"InteractionSequenceController received: " +
+        $"{interactionEvent.Type}",
+        this);
+
         switch (interactionEvent.Type)
         {
             case InteractionType.SliderCompleted:
