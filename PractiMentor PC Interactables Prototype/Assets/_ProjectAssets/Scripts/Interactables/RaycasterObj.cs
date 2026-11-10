@@ -11,12 +11,13 @@ public class RaycasterObj : MonoBehaviour
     private Camera playerCamera;
     private LayerMask layerMask;
     private int layerNumber;
-    private InteractablesBase currentInteractable;
+    private InteractablesHighlighter currentInteractable;
 
     //player
     [Header ("General Set Up")]
     [SerializeField] private GameObject player;
     [SerializeField] private Player playerController;
+    [SerializeField] private HandController handController;
 
     //detects right & left hand positions to hold grabbables
     [Header("Hand Position Set Up")]
@@ -25,10 +26,6 @@ public class RaycasterObj : MonoBehaviour
 
     [SerializeField] private Transform sliderHoldPosR;
     [SerializeField] private Transform sliderHoldPosL;
-
-    //slots for the held object
-    private GameObject heldObjR;
-    private GameObject heldObjL;
 
     //slider reference
     [Header("Slider Set Up")]
@@ -60,36 +57,6 @@ public class RaycasterObj : MonoBehaviour
     private bool socketRotationMode;
 
     private Socket mugSocket;
-    private bool movingFromSocket;
-    private enum Hand
-    {
-        Left,
-        Right
-    }
-
-    private GameObject GetHeldObject(Hand hand)
-    {
-        return hand == Hand.Right ? heldObjR : heldObjL;
-    }
-
-    private Transform GetHoldPosition(Hand hand)
-    {
-        Transform normalTarget = hand == Hand.Right ? holdPosR : holdPosL;
-
-        Transform sliderTarget = hand == Hand.Right ? sliderHoldPosR : sliderHoldPosL;
-
-        bool isSliderMode = playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction;
-
-        return isSliderMode ? sliderTarget : normalTarget;
-    }
-
-    private void SetHeldObject(Hand hand, GameObject obj)
-    {
-        if (hand == Hand.Right)
-            heldObjR = obj;
-        else 
-            heldObjL = obj;
-    }
 
     //range of raycast
     [Header ("Raycast")]
@@ -107,18 +74,15 @@ public class RaycasterObj : MonoBehaviour
         layerMask = LayerMask.GetMask("Interactables");
         layerNumber = LayerMask.NameToLayer("Hold Layer");
 
-        //reference validators (to check if things are in place
-        //if (player == null)
-            //Debug.LogError("Player reference is missing.", this);//player
+        if (handController == null && player != null)
+        {
+            handController = player.GetComponent<HandController>();
+        }
 
-        if (holdPosR == null)
-            Debug.LogError("Right-hand hold position is missing.", this);//right hand
-
-        if (holdPosL == null)
-            Debug.LogError("Left-hand hold position is missing.", this);//left hand
-
-        if (layerNumber == -1)
-            Debug.LogError("The 'Hold Layer' doesn't exist!", this);//hold layer
+        if (handController == null)
+        {
+            Debug.LogError("HandController reference is missing.", this);
+        }
     }
 
     private void Start()
@@ -136,10 +100,11 @@ public class RaycasterObj : MonoBehaviour
             return;
         }
 
-        if (AnyObjectHeld())
+        if (handController != null && handController.AnyObjectHeld)
         {
-            MoveObject(Hand.Right);
-            MoveObject(Hand.Left);
+            bool sliderMode = playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction;
+
+            handController.UpdateHeldObjects(sliderMode);
         }
 
         UpdateInteractionSlider();
@@ -161,9 +126,9 @@ public class RaycasterObj : MonoBehaviour
 
             bool socketCanAcceptHeldItem = false;
 
-            if (hitSocket != null && TryFindHeldHand(out Hand heldHand))
+            if (hitSocket != null && handController.TryFindHeldHand(out HandController.Hand heldHand))
             {
-                GameObject heldObject = GetHeldObject(heldHand);
+                GameObject heldObject = handController.GetHeldObject(heldHand);
                 GameObject grabbableRoot = GetGrabbableRoot(heldObject);
 
                 socketCanAcceptHeldItem = hitSocket.CanAccept(grabbableRoot);
@@ -174,7 +139,7 @@ public class RaycasterObj : MonoBehaviour
 
             if (canHighlightHit)
             {
-                if(hit.transform.TryGetComponent(out InteractablesBase nextInteractable))
+                if(hit.transform.TryGetComponent(out InteractablesHighlighter nextInteractable))
                 {
                     if(currentInteractable != nextInteractable)
                     {
@@ -206,10 +171,11 @@ public class RaycasterObj : MonoBehaviour
                         PickUpMugForDrinking(clickedRoot);
                     }
                     //checks if things are grabbed or not
-                    else if (TryFindFreeHand(hit.transform.gameObject, out Hand selectedHand))
+                    else if (handController.TryFindFreeHand(hit.transform.gameObject, out HandController.Hand selectedHand))
                     {
-                        Debug.Log("You grabbed it!");
-                        PickUpObject(hit.transform.gameObject, selectedHand);
+                        bool sliderMode = playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction;
+
+                        handController.TryPickUp(hit.transform.gameObject, selectedHand, sliderMode);
 
                     }
                     else
@@ -238,10 +204,9 @@ public class RaycasterObj : MonoBehaviour
                         return;
                     }
 
-                    if (TryFindHeldHand(out Hand selectedHand))
+                    if (handController.TryFindHeldHand(out HandController.Hand selectedHand))
                     {
-                        GameObject heldObject = GetHeldObject(selectedHand);
-                        GameObject grabbableRoot = GetGrabbableRoot(heldObject);
+                        GameObject heldObject = handController.GetHeldObject(selectedHand);
 
                         if (socket.TryOccupySocket(heldObject, out Transform placementPoint))
                         {
@@ -268,94 +233,19 @@ public class RaycasterObj : MonoBehaviour
 
     }
 
-    //function to pick up object
-    void PickUpObject(GameObject pickUpObj, Hand hand)
-    {
-        if(playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction)
-            return;
-
-        if (pickUpObj == null || GetHeldObject(hand) != null)
-            return;
-
-        GameObject grabbableRoot = GetGrabbableRoot(pickUpObj);
-
-        if (!CanUseHand(grabbableRoot, hand)) 
-            return;
-
-        movingFromSocket = true;
-
-        SetHeldObject(hand, grabbableRoot);
-
-        Transform holdPosition = GetHoldPosition(hand);
-        //grabbableRoot.transform.DOMove(endValue: holdPosition.position, 0.5f).SetEase(Ease.InOutSine);
-        grabbableRoot.layer = layerNumber;
-
-        Collider objectCollider = grabbableRoot.GetComponent<Collider>();
-        Collider playerCollider = player.GetComponent<Collider>();
-
-        if (objectCollider != null && playerCollider != null)
-            Physics.IgnoreCollision(objectCollider, playerCollider,true);
-
-        StartCoroutine(FinishPickupAnimation(grabbableRoot, holdPosition));
-    }
-
-    private IEnumerator FinishPickupAnimation(GameObject grabbableRoot, Transform holdPosition)
-    {
-        Tween pickupTween = grabbableRoot.transform.DOMove(holdPosition.position, 0.5f).SetEase(Ease.InOutSine);
-
-        yield return pickupTween.WaitForCompletion();
-
-        movingFromSocket = false;
-    }
-    //fuction to move held grabbable
-    void MoveObject(Hand hand)
-    {
-        if (movingToSliderHands || restoringSliderTarget || restoringBetweenSliderActions)
-            return;
-
-        if (playerController != null && playerController.CurrentMode == Player.PlayerMode.SliderInteraction)
-            return;
-
-        if (movingFromSocket)
-            return;
-
-        GameObject heldObject = GetHeldObject(hand);
-
-        if (heldObject == null)
-            return;
-
-        heldObject.transform.position = GetHoldPosition(hand).position;
-    }
-
     //function to place held grabbable (with the animation, assisted by Socket.cs (will be up for modification)
-    void PlaceHeldObject(Socket socket, Transform placementPoint, Hand hand)
+    void PlaceHeldObject(Socket socket, Transform placementPoint, HandController.Hand hand)
     {
-        GameObject heldObject = GetHeldObject(hand);
+        GameObject heldObject = handController.GetHeldObject(hand);
 
         if (heldObject == null)
             return;
 
-        Collider objectCollider = heldObject.GetComponent<Collider>();
-        Collider playerCollider = player.GetComponent<Collider>();
-
-        if (objectCollider != null && playerCollider != null)
-            Physics.IgnoreCollision(objectCollider, playerCollider, false);
-
-        heldObject.layer = 0;
-
-        Sequence placementSequence = DOTween.Sequence();
-
-        placementSequence.Join(heldObject.transform.DOMove(placementPoint.position, 0.5f).SetEase(Ease.InOutSine));
-
-        placementSequence.Join(heldObject.transform.DORotateQuaternion(placementPoint.rotation, 0.5f).SetEase(Ease.InOutSine));
-
-        SetHeldObject(hand, null);
-
-        placementSequence.OnComplete(() =>
+        handController.TryPlaceHeldObject(hand, placementPoint, placedObject =>
         {
-            InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.ObjectPlaced,heldObject,socket.gameObject));
+            InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.ObjectPlaced, placedObject, socket.gameObject));
 
-            CoffeeTool tool = heldObject.GetComponentInParent<CoffeeTool>();
+            CoffeeTool tool = placedObject.GetComponentInParent<CoffeeTool>();
 
             if (tool != null && tool.ToolType == CoffeeToolType.Mug)
             {
@@ -364,7 +254,7 @@ public class RaycasterObj : MonoBehaviour
 
             if (tool != null && tool.ToolType == CoffeeToolType.Portafilter)
             {
-                BeginSocketRotation(socket, heldObject);
+                BeginSocketRotation(socket, placedObject);
             }
         });
     }
@@ -428,70 +318,8 @@ public class RaycasterObj : MonoBehaviour
         currentInteractable.SetHighlighted(false);
         currentInteractable = null;
     }
-
-    private bool TryFindHeldHand(out Hand hand)
-    {
-        if (heldObjR != null)
-        {
-            hand = Hand.Right;
-            return true;
-        }
-
-        if (heldObjL != null)
-        {
-            hand = Hand.Left;
-            return true;
-        }
-
-        hand = default;
-        return false;
-    }
-
-    private bool TryFindFreeHand(GameObject objectToPickUp, out Hand hand)
-    {
-        if(CanUseHand(objectToPickUp, Hand.Right) && GetHeldObject(Hand.Right) == null)
-        {
-            hand = Hand.Right;
-            return true;
-        }
-
-        if(CanUseHand(objectToPickUp,Hand.Left) && GetHeldObject(Hand.Left) == null)
-        {
-            hand = Hand.Left;
-            return true;
-        }
-
-        hand = default;
-        return false;
-    }
-
-
-    private bool CanUseHand(GameObject obj, Hand hand)
-    {
-        Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
-
-        if(grabbable == null) 
-            return false;
-
-        return grabbable.HandDirection switch
-        {
-            Grabbable.GrabbableHandDirection.Both => true,
-            Grabbable.GrabbableHandDirection.Left => hand == Hand.Left,
-            Grabbable.GrabbableHandDirection.Right => hand == Hand.Right,
-            _ => false
-        };
-    }
-
-    private bool AnyObjectHeld()
-    {
-        return heldObjR != null || heldObjL != null;
-    }
-
     private void UpdateInteractionSlider()
     {
-        if (movingFromSocket)
-            return;
-
         if (socketRotationMode)
         {
             UpdateSocketRotationSlider();
@@ -503,16 +331,16 @@ public class RaycasterObj : MonoBehaviour
             return;
         }
 
-        SliderTarget rightSliderTarget = GetSliderTarget(heldObjR);
+        SliderTarget rightSliderTarget = GetSliderTarget(handController.HeldRight);
 
         bool isDrinkStep = sequenceController != null && sequenceController.CurrentStep == InteractionSequenceController.Step.DrinkCoffee;
 
-        bool hasValidDrinkMug = heldObjR != null && heldObjR.GetComponentInParent<CoffeeTool>()?.ToolType == CoffeeToolType.Mug && GetSliderTarget(heldObjR) != null;
+        bool hasValidDrinkMug = handController.HeldRight != null && handController.HeldRight.GetComponentInParent<CoffeeTool>()?.ToolType == CoffeeToolType.Mug && GetSliderTarget(handController.HeldRight) != null;
 
-        bool canUseSlider = isDrinkStep ? hasValidDrinkMug && CanInteract(heldObjR) 
-            : heldObjR != null && heldObjL != null &&
-            CanInteract(heldObjR) && CanInteract(heldObjL) &&
-            rightSliderTarget != null && sequenceController.CanStartInteraction(heldObjR, heldObjL);
+        bool canUseSlider = isDrinkStep ? hasValidDrinkMug && CanInteract(handController.HeldRight) 
+            : handController.HeldRight != null && handController.HeldLeft != null &&
+            CanInteract(handController.HeldRight) && CanInteract(handController.HeldLeft) &&
+            rightSliderTarget != null && sequenceController.CanStartInteraction(handController.HeldRight, handController.HeldLeft);
 
         if (!canUseSlider)
         {
@@ -667,7 +495,7 @@ public class RaycasterObj : MonoBehaviour
 
         Debug.Log(
         $"CompleteSliderAction: grabbable={grabbable}, " +
-        $"multiple={grabbable?.CanActionMultiple}, " +
+        $"multiple={grabbable?.HasInteractableMoreAction}, " +
         $"completed={completedSliderActions}, " +
         $"count={grabbable?.ActionCount}, " +
         $"pointerHeld={sliderController?.IsPointerHeld}"
@@ -681,7 +509,7 @@ public class RaycasterObj : MonoBehaviour
 
         completedSliderActions++;
 
-        bool needsAnotherAction = grabbable.CanActionMultiple && completedSliderActions < grabbable.ActionCount;
+        bool needsAnotherAction = grabbable.HasInteractableMoreAction && completedSliderActions < grabbable.ActionCount;
 
         Debug.Log($"Needs another action: {needsAnotherAction}");
 
@@ -691,7 +519,7 @@ public class RaycasterObj : MonoBehaviour
         }
         else
         {
-            InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.SliderCompleted,heldObjR,heldObjL));
+            InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.SliderCompleted,handController.HeldRight, handController.HeldLeft));
             FinishSliderInteraction();
         }
     }
@@ -768,13 +596,13 @@ public class RaycasterObj : MonoBehaviour
     private void PrepareNextSliderAction()
     {
 
-        if (heldObjR == null)
+        if (handController.HeldRight == null)
         {
             FinishSliderInteraction();
             return;
         }
 
-        SliderTarget target = GetSliderTarget(heldObjR);
+        SliderTarget target = GetSliderTarget(handController.HeldRight);
 
         if(target == null)
         {
@@ -846,8 +674,8 @@ public class RaycasterObj : MonoBehaviour
     {
         DG.Tweening.Sequence sequence = DOTween.Sequence();
 
-        GameObject rightObject = GetHeldObject(Hand.Right);
-        GameObject leftObject = GetHeldObject(Hand.Left);
+        GameObject rightObject = handController.GetHeldObject(HandController.Hand.Right);
+        GameObject leftObject = handController.GetHeldObject(HandController.Hand.Left);
 
         if (rightObject != null && holdPosR != null)
             //sequence.Join(MoveManipulatedObjectTo(Hand.Right, holdPosR));
@@ -866,13 +694,13 @@ public class RaycasterObj : MonoBehaviour
     private bool CanInteract (GameObject obj)
     {
         Grabbable grabbable = obj.GetComponentInParent<Grabbable>();
-        return grabbable != null && grabbable.CanThisInteract;
+        return grabbable != null && grabbable.HasInteractableAction;
     }
 
 
     private bool IsSliderKnobStillHeld()
     {
-        return heldObjR!= null && GetSliderTarget(heldObjR) != null;
+        return handController.HeldRight != null && GetSliderTarget(handController.HeldRight) != null;
     }
     private void MoveHeldObjectsToSliderHands(SliderTarget sliderTarget)
     {
@@ -881,20 +709,20 @@ public class RaycasterObj : MonoBehaviour
 
         DG.Tweening.Sequence sequence = DG.Tweening.DOTween.Sequence();
 
-        Transform rightObject = GetManipulatedTransform(Hand.Right);
-        Transform leftObject = GetManipulatedTransform(Hand.Left);
+        Transform rightObject = GetManipulatedTransform(HandController.Hand.Right);
+        Transform leftObject = GetManipulatedTransform(HandController.Hand.Left);
 
         rightObject?.DOKill();
         leftObject?.DOKill();
 
         if (rightObject != null && sliderHoldPosR != null)
         {
-            sequence.Join(MoveManipulatedObjectTo(Hand.Right, sliderHoldPosR));
+            sequence.Join(MoveManipulatedObjectTo(HandController.Hand.Right, sliderHoldPosR));
         }
 
         if (leftObject != null && sliderHoldPosL != null)
         {
-            sequence.Join(MoveManipulatedObjectTo(Hand.Left, sliderHoldPosL));
+            sequence.Join(MoveManipulatedObjectTo(HandController.Hand.Left, sliderHoldPosL));
         }
 
         sequence.OnComplete(() =>
@@ -908,21 +736,21 @@ public class RaycasterObj : MonoBehaviour
         });
     }
 
-    private Transform GetManipulatedTransform(Hand hand)
+    private Transform GetManipulatedTransform(HandController.Hand hand)
     {
-        GameObject heldObject = GetHeldObject(hand);
+        GameObject heldObject = handController.GetHeldObject(hand);
 
         if (heldObject == null)
             return null;
 
-        bool isDrinkMug = hand == Hand.Right && heldObject == drinkMug && heldObject.GetComponent<CoffeeTool>()?.ToolType == CoffeeToolType.Mug;
+        bool isDrinkMug = hand == HandController.Hand.Right && heldObject == drinkMug && heldObject.GetComponent<CoffeeTool>()?.ToolType == CoffeeToolType.Mug;
 
         if (isDrinkMug)
             return heldObject.transform;
 
-        if (hand == Hand.Right)
+        if (hand == HandController.Hand.Right)
         {
-            SliderTarget sliderTarget = GetSliderTarget(heldObjR);
+            SliderTarget sliderTarget = GetSliderTarget(handController.HeldRight);
 
             if (sliderTarget != null)
                 return sliderTarget.transform;
@@ -931,9 +759,9 @@ public class RaycasterObj : MonoBehaviour
         return heldObject.transform;
     }
 
-    private Tween MoveManipulatedObjectTo(Hand hand, Transform anchor)
+    private Tween MoveManipulatedObjectTo(HandController.Hand hand, Transform anchor)
     {
-        GameObject heldObject = GetHeldObject(hand);
+        GameObject heldObject = handController.GetHeldObject(hand);
         Transform manipulatedObject = GetManipulatedTransform(hand);
 
         if (heldObject == null ||manipulatedObject == null ||anchor == null)
@@ -964,7 +792,7 @@ public class RaycasterObj : MonoBehaviour
             return;
         }
 
-        if(heldObjR != null)
+        if(handController.HeldRight != null)
         {
             Debug.LogWarning("Right hand is already occupied.");
             return;
@@ -976,7 +804,7 @@ public class RaycasterObj : MonoBehaviour
             return;
         }
 
-        PickUpObject(mug, Hand.Right);
+        handController.TryPickUp(mug,HandController.Hand.Right,sliderMode: false);
     }
     private IEnumerator HoldSliderTarget(float duration)
     {
@@ -1028,7 +856,7 @@ public class RaycasterObj : MonoBehaviour
         if (grabbable != null)
             return grabbable;
 
-        return heldObjR?.GetComponentInParent<Grabbable>();
+        return handController.HeldRight?.GetComponentInParent<Grabbable>();
     }
     private SliderTarget GetSliderTarget(GameObject obj)
     {

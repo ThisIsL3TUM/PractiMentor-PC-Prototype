@@ -2321,7 +2321,7 @@ PrefabInstance:
       objectReference: {fileID: 927157465}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 373
+      value: 376
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -4395,7 +4395,7 @@ PrefabInstance:
       objectReference: {fileID: 524245574}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 373
+      value: 376
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -8309,7 +8309,7 @@ PrefabInstance:
       objectReference: {fileID: 804974717}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 373
+      value: 376
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -9936,7 +9936,7 @@ PrefabInstance:
       objectReference: {fileID: 1295036553}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 361
+      value: 364
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -11381,7 +11381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abff2c65f4077014fb351b5aebaa761e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionSequenceController
-  currentStep: 2
+  currentStep: 0
   raycaster: {fileID: 2027579906}
 --- !u!4 &1830249862
 Transform:
@@ -12451,6 +12451,7 @@ GameObject:
   - component: {fileID: 2027579900}
   - component: {fileID: 2027579905}
   - component: {fileID: 2027579906}
+  - component: {fileID: 2027579907}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -12611,6 +12612,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaycasterObj
   player: {fileID: 2027579899}
   playerController: {fileID: 0}
+  handController: {fileID: 2027579907}
   holdPosR: {fileID: 1646463911}
   holdPosL: {fileID: 1625601920}
   sliderHoldPosR: {fileID: 639486968}
@@ -12620,6 +12622,26 @@ MonoBehaviour:
   sequenceController: {fileID: 1830249861}
   interactableRange: 15
   drinkMug: {fileID: 4426748852440377281}
+--- !u!114 &2027579907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2027579899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 262a3c1d1d412d845abd0fc492f41831, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandController
+  player: {fileID: 2027579899}
+  holdPosR: {fileID: 1646463911}
+  holdPosL: {fileID: 1625601920}
+  sliderHoldPosR: {fileID: 639486968}
+  sliderHoldPosL: {fileID: 1906020549}
+  holdLayerName: Hold Layer
+  pickUpDuration: 0.5
+  placementDuration: 0.5
 --- !u!1 &2143557125
 GameObject:
   m_ObjectHideFlags: 0
@@ -12741,7 +12763,7 @@ PrefabInstance:
       objectReference: {fileID: 228944633}
     - target: {fileID: 8468029383607143250, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 5677
+      value: 5683
       objectReference: {fileID: 0}
     - target: {fileID: 8698190597907957419, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12793,7 +12815,7 @@ PrefabInstance:
       objectReference: {fileID: 467754699}
     - target: {fileID: 8893865798758973246, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 438
+      value: 444
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12833,7 +12855,7 @@ PrefabInstance:
       objectReference: {fileID: 1148062076}
     - target: {fileID: 6644898340073661556, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 504
+      value: 510
       objectReference: {fileID: 0}
     - target: {fileID: 8272717552122999782, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12881,7 +12903,7 @@ PrefabInstance:
       objectReference: {fileID: 536027546}
     - target: {fileID: 8385341091578498490, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 1789
+      value: 1795
       objectReference: {fileID: 0}
     - target: {fileID: 8497993741660236740, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_Mesh
@@ -12966,7 +12988,7 @@ PrefabInstance:
       objectReference: {fileID: 1344941322}
     - target: {fileID: 6047656268235146832, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
       propertyPath: m_VersionIndex
-      value: 359
+      value: 365
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13048,7 +13070,7 @@ PrefabInstance:
       objectReference: {fileID: 916249518}
     - target: {fileID: 4631239119345083465, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_VersionIndex
-      value: 373
+      value: 376
       objectReference: {fileID: 0}
     - target: {fileID: 7772998279778913205, guid: 1686c36fb572c6d4faa19902b314026d, type: 3}
       propertyPath: m_Mesh
@@ -13125,7 +13147,7 @@ PrefabInstance:
       objectReference: {fileID: 739718083}
     - target: {fileID: 8750285503508619209, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: m_VersionIndex
-      value: 429
+      value: 435
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

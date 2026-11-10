@@ -13,10 +13,10 @@ public class Grabbable : MonoBehaviour
     [SerializeField] private GrabbableHandDirection grabbableHandDirection = GrabbableHandDirection.Both;
 
     [Header("Interaction Set Up")]
-    [SerializeField] private bool canObjInteract = false;
+    [SerializeField] private bool hasInteractableAction = false;
 
     [Header("Multiple Interaction Set Up")]
-    [SerializeField] private bool canObjDoActionMore = false;
+    [SerializeField] private bool hasInteractableMoreAction = false;
     [SerializeField, Range(1, 10)] private int amountAction = 3;
     [SerializeField, Min(0f)] private float delayBetweenSliderAction = 0.3f;
 
@@ -25,10 +25,10 @@ public class Grabbable : MonoBehaviour
     [SerializeField, Min(0f)] private float timedVal = 3f;
 
     //general
-    public bool CanThisInteract => canObjInteract;
+    public bool HasInteractableAction => hasInteractableAction;
     
     //multiple action
-    public bool CanActionMultiple => canObjDoActionMore;
+    public bool HasInteractableMoreAction => hasInteractableMoreAction;
     public int ActionCount => Mathf.Max(1, amountAction);
     public float DelayBetweenSliderAction => delayBetweenSliderAction;
 
