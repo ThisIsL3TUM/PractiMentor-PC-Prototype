@@ -12452,6 +12452,8 @@ GameObject:
   - component: {fileID: 2027579905}
   - component: {fileID: 2027579906}
   - component: {fileID: 2027579907}
+  - component: {fileID: 2027579908}
+  - component: {fileID: 2027579909}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -12613,6 +12615,8 @@ MonoBehaviour:
   player: {fileID: 2027579899}
   playerController: {fileID: 0}
   handController: {fileID: 2027579907}
+  sliderInteractionHandler: {fileID: 2027579908}
+  socketInteractionHandler: {fileID: 2027579909}
   sliderController: {fileID: 1135071518}
   delayBetweenSliderActions: 0.3
   sequenceController: {fileID: 1830249861}
@@ -12638,6 +12642,40 @@ MonoBehaviour:
   holdLayerName: Hold Layer
   pickUpDuration: 0.5
   placementDuration: 0.5
+--- !u!114 &2027579908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2027579899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0279eab240b5a664c820d45f97140490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderInteractionHandler
+  sliderController: {fileID: 1135071518}
+  delayBetweenSliderActions: 0.5
+  playerController: {fileID: 2027579905}
+  handController: {fileID: 2027579907}
+  sequenceController: {fileID: 1830249861}
+  drinkMug: {fileID: 4426748852440377281}
+  socketHandler: {fileID: 2027579909}
+--- !u!114 &2027579909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2027579899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f18ce0c5b40361e46948a3b5b1b59178, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SocketInteractionHandler
+  handController: {fileID: 2027579907}
+  playerController: {fileID: 2027579905}
+  sliderController: {fileID: 1135071518}
 --- !u!1 &2143557125
 GameObject:
   m_ObjectHideFlags: 0
