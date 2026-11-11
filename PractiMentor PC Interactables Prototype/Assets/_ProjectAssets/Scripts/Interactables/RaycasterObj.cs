@@ -190,7 +190,7 @@ public class RaycasterObj : MonoBehaviour
 
                     if (clickable != null)
                     {
-                        InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.ClickablePressed, clickable.gameObject));
+                        handController.ReportInteractionCompleted(new InteractionCompletedEvent(InteractionType.ClickablePressed, clickable.gameObject));
                     }
                 }
                 else if (hitIsSocket && socketCanAcceptHeldItem)
@@ -243,7 +243,7 @@ public class RaycasterObj : MonoBehaviour
 
         handController.TryPlaceHeldObject(hand, placementPoint, placedObject =>
         {
-            InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.ObjectPlaced, placedObject, socket.gameObject));
+            handController.ReportInteractionCompleted(new InteractionCompletedEvent(InteractionType.ObjectPlaced, placedObject, socket.gameObject));
 
             CoffeeTool tool = placedObject.GetComponentInParent<CoffeeTool>();
 
@@ -499,7 +499,7 @@ public class RaycasterObj : MonoBehaviour
         sliderController.ClearTarget();
         sliderController.SetVisible(false);
 
-        InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.SocketRotationCompleted,activeSocketObject,activeRotationSocket.gameObject));
+        handController.ReportInteractionCompleted(new InteractionCompletedEvent(InteractionType.SocketRotationCompleted, activeSocketObject, activeRotationSocket.gameObject));
 
         socketRotationMode = false;
         activeSocketObject = null;
@@ -541,13 +541,7 @@ public class RaycasterObj : MonoBehaviour
         }
         else
         {
-            Debug.Log(
-        $"Emitting SliderCompleted. " +
-        $"Right: {handController.HeldRight}, " +
-        $"Left: {handController.HeldLeft}",
-        this);
-
-            InteractionCompleted?.Invoke(new InteractionCompletedEvent(InteractionType.SliderCompleted,handController.HeldRight, handController.HeldLeft));
+            handController.ReportInteractionCompleted(new InteractionCompletedEvent(InteractionType.SliderCompleted, handController.HeldRight, handController.HeldLeft));
             FinishSliderInteraction();
         }
     }

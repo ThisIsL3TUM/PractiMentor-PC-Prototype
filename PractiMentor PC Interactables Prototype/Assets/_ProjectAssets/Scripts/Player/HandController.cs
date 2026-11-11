@@ -38,6 +38,8 @@ public class HandController : MonoBehaviour
     public Transform SliderHoldRight => sliderHoldPosR;
     public Transform SliderHoldLeft => sliderHoldPosL;
 
+    public event Action<InteractionCompletedEvent> InteractionCompleted;
+
     public bool AnyObjectHeld => heldObjR != null || heldObjL != null;
 
     private void Awake()
@@ -233,5 +235,11 @@ public class HandController : MonoBehaviour
         {
             Physics.IgnoreCollision(objectCollider, playerCollider, ignoreCollision);
         }
+    }
+
+    public void ReportInteractionCompleted(
+    InteractionCompletedEvent interactionEvent)
+    {
+        InteractionCompleted?.Invoke(interactionEvent);
     }
 }

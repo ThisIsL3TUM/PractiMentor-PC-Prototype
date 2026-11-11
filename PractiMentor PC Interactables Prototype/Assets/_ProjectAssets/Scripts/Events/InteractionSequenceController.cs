@@ -19,7 +19,7 @@ public class InteractionSequenceController : MonoBehaviour
     [SerializeField] private Step currentStep = Step.FillPortafilter;
 
     [Header("Interaction Source")]
-    [SerializeField] private RaycasterObj raycaster;
+    [SerializeField] private HandController handController;
 
     public Step CurrentStep => currentStep;
     public bool IsInteractionLocked { get; private set; }
@@ -32,47 +32,40 @@ public class InteractionSequenceController : MonoBehaviour
 
     private void OnEnable()
     {
-        Debug.Log("InteractionSequenceController enabled.", this);
-
-        SubscribeToRaycaster();
+        SubscribeToHandController();
     }
     private void Start()
     {
-        SubscribeToRaycaster();
+        SubscribeToHandController();
     }
 
     private void OnDisable()
     {
-        if (raycaster != null)
-            raycaster.InteractionCompleted -= OnInteractionCompleted;
+        if (handController != null)
+            handController.InteractionCompleted -= OnInteractionCompleted;
     }
 
-    private void SubscribeToRaycaster()
+    private void SubscribeToHandController()
     {
-        if (raycaster == null)
+        if (handController == null)
         {
             Debug.LogError(
-                "InteractionSequenceController has no RaycasterObj reference.",
+                "InteractionSequenceController has no HandController reference.",
                 this);
             return;
         }
 
-        raycaster.InteractionCompleted -= OnInteractionCompleted;
+        handController.InteractionCompleted -= OnInteractionCompleted;
 
-        raycaster.InteractionCompleted += OnInteractionCompleted;
+        handController.InteractionCompleted += OnInteractionCompleted;
 
         Debug.Log(
-            $"InteractionSequenceController subscribed to {raycaster.name}.",
+            $"InteractionSequenceController subscribed to {handController.name}.",
             this);
     }
 
     private void OnInteractionCompleted(InteractionCompletedEvent interactionEvent)
     {
-        Debug.Log(
-        $"InteractionSequenceController received: " +
-        $"{interactionEvent.Type}",
-        this);
-
         switch (interactionEvent.Type)
         {
             case InteractionType.SliderCompleted:
