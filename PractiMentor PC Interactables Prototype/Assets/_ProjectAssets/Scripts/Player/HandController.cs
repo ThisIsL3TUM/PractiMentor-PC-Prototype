@@ -30,6 +30,14 @@ public class HandController : MonoBehaviour
     private int holdLayer;
     private bool movingFromSocket;
 
+    private int activePickupAnimations;
+
+    public bool IsPickupAnimating => activePickupAnimations > 0;
+
+    private Tween handTransitionTween;
+
+    private bool suppressHeldObjectUpdates;
+
     public GameObject HeldRight => heldObjR;
     public GameObject HeldLeft => heldObjL;
 
@@ -41,6 +49,8 @@ public class HandController : MonoBehaviour
     public event Action<InteractionCompletedEvent> InteractionCompleted;
 
     public bool AnyObjectHeld => heldObjR != null || heldObjL != null;
+
+    public bool IsHandTransitioning => handTransitionTween != null && handTransitionTween.IsActive();
 
     private void Awake()
     {
@@ -184,23 +194,67 @@ public class HandController : MonoBehaviour
             _ => false
         };
     }
+    public void SetHeldObjectUpdateSuppressed(bool suppressed)
+    {
+        suppressHeldObjectUpdates = suppressed;
+    }
     public void UpdateHeldObjects(bool sliderMode)
     {
+        if (suppressHeldObjectUpdates || IsHandTransitioning)
+            return;
+
         MoveObject(Hand.Right, sliderMode);
         MoveObject(Hand.Left, sliderMode);
+    }
+    public Tween MoveTransformsToNormalHands(Transform rightTransform, Vector3 rightTarget, Transform leftTransform, Vector3 leftTarget, float duration, Action onComplete = null)
+    {
+        handTransitionTween?.Kill();
+
+        suppressHeldObjectUpdates = true;
+
+        Sequence sequence = DOTween.Sequence();
+
+        if (rightTransform != null)
+        {
+            Debug.Log($"Right return: {rightTransform.name}, " + $"distance: {Vector3.Distance(rightTransform.position, rightTarget)}");
+            sequence.Join(rightTransform.DOMove(rightTarget, duration).SetEase(Ease.InOutCirc));
+        }
+
+        if (leftTransform != null)
+        {
+            Debug.Log($"Left return: {leftTransform.name}, " + $"distance: {Vector3.Distance(leftTransform.position, leftTarget)}");
+            sequence.Join(leftTransform.DOMove(leftTarget, duration).SetEase(Ease.InOutCirc));
+        }
+
+        Debug.Log($"ACTIVE return tween duration: {sequence.Duration()}");
+
+        handTransitionTween = sequence
+            .OnComplete(() =>
+            {
+                suppressHeldObjectUpdates = false;
+                handTransitionTween = null;
+                onComplete?.Invoke();
+            })
+            .OnKill(() =>
+            {
+                suppressHeldObjectUpdates = false;
+                handTransitionTween = null;
+            });
+
+        return handTransitionTween;
     }
     private IEnumerator FinishPickupAnimation(GameObject grabbableRoot, Transform holdPosition)
     {
         if (grabbableRoot == null || holdPosition == null)
             yield break;
 
-        movingFromSocket = true;
+        activePickupAnimations++;
 
         Tween pickupTween = grabbableRoot.transform.DOMove(holdPosition.position, pickUpDuration).SetEase(Ease.InOutSine);
 
         yield return pickupTween.WaitForCompletion();
 
-        movingFromSocket = false;
+        activePickupAnimations = Mathf.Max(0,activePickupAnimations - 1);
     }
     private void MoveObject(Hand hand, bool sliderMode)
     {
@@ -237,8 +291,7 @@ public class HandController : MonoBehaviour
         }
     }
 
-    public void ReportInteractionCompleted(
-    InteractionCompletedEvent interactionEvent)
+    public void ReportInteractionCompleted(InteractionCompletedEvent interactionEvent)
     {
         InteractionCompleted?.Invoke(interactionEvent);
     }

@@ -27,6 +27,13 @@ public class SliderInteractionHandler : MonoBehaviour
     private bool restoringBetweenSliderActions;
     private bool completingSliderAction;
 
+
+    private Transform rightReturnTransform;
+    private Transform leftReturnTransform;
+
+    private Vector3 rightReturnPosition;
+    private Vector3 leftReturnPosition;
+
     private Camera playerCamera;
 
     private void Awake()
@@ -47,11 +54,10 @@ public class SliderInteractionHandler : MonoBehaviour
 
     private void UpdateInteractionSlider()
     {
-        //if (socketRotationMode)
-       // {
-            //UpdateSocketRotationSlider();
-            //return;
-        //}
+        if (handController != null && handController.IsPickupAnimating)
+        {
+            return;
+        }
 
         if (restoringBetweenSliderActions)
         {
@@ -149,15 +155,14 @@ public class SliderInteractionHandler : MonoBehaviour
             return;
         }
 
+        Debug.Log("1. Slider target reached");
+
         CompleteSliderAction();
-        // if (socketRotationMode)
-        // {
-        //CompleteSocketRotation();
-        // return;
-        // }
     }
     private void CompleteSliderAction()
     {
+        Debug.Log("2. Completing slider action");
+
         Grabbable grabbable = activeSliderGrabbable;
 
         Debug.Log(
@@ -222,6 +227,8 @@ public class SliderInteractionHandler : MonoBehaviour
 
         Tween restoreTween = sliderController.RestoreStartingTransform();
 
+        Debug.Log($"Restore tween created: {restoreTween != null}");
+
         sliderController.ClearTarget();
         sliderController.ResetTimedProgress();
         sliderController.SetVisible(false);
@@ -230,6 +237,8 @@ public class SliderInteractionHandler : MonoBehaviour
         {
             restoreTween.OnComplete(() =>
             {
+                Debug.Log("Restore tween completed");
+
                 restoringBetweenSliderActions = false;
                 PrepareNextSliderAction();
             });
@@ -279,45 +288,40 @@ public class SliderInteractionHandler : MonoBehaviour
     private void FinishSliderInteraction()
     {
         completingSliderAction = false;
+        sliderCompleted = true;
 
         if (sliderController != null)
             sliderController.SetAutomaticResetEnabled(true);
 
-        holdingTimedSliderTarget = false;
-        sliderCompleted = true;
+        SliderTarget currentTarget = GetSliderTarget(handController.HeldRight);
 
-        if (sliderController != null)
+        bool isPositionSlider = currentTarget != null && currentTarget.Property == SliderTarget.TransformProperty.Position;
+
+        if (!isPositionSlider && sliderController != null)
         {
-            //sliderController.SetAutomaticResetEnabled(true);
-            Tween restoreTween = sliderController.RestoreStartingTransform();
-
-            sliderController.ClearTarget();
-            sliderController.ResetTimedProgress();
-            sliderController.SetVisible(false);
-
-            if (restoreTween != null)
-            {
-                restoringSliderTarget = true;
-
-                restoreTween.OnComplete(() =>
-                {
-                    MoveHeldObjectsBackToNormalHands();
-
-                    if (playerController != null)
-                        playerController.SetPlayerState(Player.PlayerMode.Navigate);
-                });
-
-                return;
-            }
+            sliderController.RestoreStartingTransform();
         }
 
-        MoveHeldObjectsBackToNormalHands();
+        sliderController?.ClearTarget();
+        sliderController?.ResetTimedProgress();
+        sliderController?.SetVisible(false);
 
-        if (playerController != null)
-            playerController.SetPlayerState(Player.PlayerMode.Navigate);
+        MoveHeldObjectsBackToNormalHands();
     }
     private void MoveHeldObjectsToSliderHands(SliderTarget sliderTarget)
     {
+        rightReturnTransform = GetManipulatedTransform(HandController.Hand.Right);
+
+        leftReturnTransform = GetManipulatedTransform(HandController.Hand.Left);
+
+        if (rightReturnTransform != null && handController.NormalHoldRight != null)
+            rightReturnPosition = rightReturnTransform.position;
+
+        if (leftReturnTransform != null && handController.NormalHoldLeft != null)
+            leftReturnPosition = leftReturnTransform.position;
+
+        Debug.Log($"Saved return positions: " + $"right={rightReturnPosition}, " + $"left={leftReturnPosition}");
+
         movingToSliderHands = true;
         sliderReady = false;
 
@@ -339,6 +343,13 @@ public class SliderInteractionHandler : MonoBehaviour
             sequence.Join(MoveManipulatedObjectTo(HandController.Hand.Left, handController.SliderHoldLeft));
         }
 
+        Debug.Log(
+    $"Slider-hand transfer: " +
+    $"right={rightObject?.name}, " +
+    $"left={leftObject?.name}, " +
+    $"duration={sequence.Duration()}"
+);
+
         sequence.OnComplete(() =>
         {
             movingToSliderHands = false;
@@ -347,26 +358,22 @@ public class SliderInteractionHandler : MonoBehaviour
                 sliderController.SetTarget(sliderTarget);
 
             sliderReady = true;
+            Debug.Log(
+    $"Slider-hand transfer completed: " +
+    $"right={rightObject?.position}, " +
+    $"left={leftObject?.position}"
+);
         });
     }
     private void MoveHeldObjectsBackToNormalHands()
     {
-        DG.Tweening.Sequence sequence = DOTween.Sequence();
+        Debug.Log($"Right return transform: {rightReturnTransform}, " + $"Left return transform: {leftReturnTransform}");
 
-        GameObject rightObject = handController.GetHeldObject(HandController.Hand.Right);
-        GameObject leftObject = handController.GetHeldObject(HandController.Hand.Left);
-
-        if (rightObject != null && handController.NormalHoldRight != null)
-            //sequence.Join(MoveManipulatedObjectTo(Hand.Right, holdPosR));
-            sequence.Join(rightObject.transform.DOMove(handController.NormalHoldRight.position, 0.5f).SetEase(Ease.InOutCirc));
-
-        if (leftObject != null && handController.NormalHoldLeft != null)
-            //sequence.Join(MoveManipulatedObjectTo(Hand.Left, holdPosL));
-            sequence.Join(leftObject.transform.DOMove(handController.NormalHoldLeft.position, 0.5f).SetEase(Ease.InOutCirc));
-
-        sequence.OnComplete(() =>
+        handController.MoveTransformsToNormalHands(rightReturnTransform, rightReturnPosition, leftReturnTransform, leftReturnPosition, 0.5f, () =>
         {
+            Debug.Log("Return hand tween completed");
             restoringSliderTarget = false;
+            playerController?.SetPlayerState(Player.PlayerMode.Navigate);
         });
     }
     private IEnumerator HoldSliderTarget(float duration)
