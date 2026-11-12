@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
 
-public class InteractablesBase : MonoBehaviour
+public class InteractablesHighlighter : MonoBehaviour
 {
     //checks name of variable from shader that results in the transition
     private const string highlightProperty = "_HighlightMaster";

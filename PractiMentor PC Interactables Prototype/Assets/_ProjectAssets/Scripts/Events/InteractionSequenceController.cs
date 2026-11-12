@@ -19,7 +19,7 @@ public class InteractionSequenceController : MonoBehaviour
     [SerializeField] private Step currentStep = Step.FillPortafilter;
 
     [Header("Interaction Source")]
-    [SerializeField] private RaycasterObj raycaster;
+    [SerializeField] private HandController handController;
 
     public Step CurrentStep => currentStep;
     public bool IsInteractionLocked { get; private set; }
@@ -32,14 +32,36 @@ public class InteractionSequenceController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (raycaster != null)
-            raycaster.InteractionCompleted += OnInteractionCompleted;
+        SubscribeToHandController();
+    }
+    private void Start()
+    {
+        SubscribeToHandController();
     }
 
     private void OnDisable()
     {
-        if (raycaster != null)
-            raycaster.InteractionCompleted -= OnInteractionCompleted;
+        if (handController != null)
+            handController.InteractionCompleted -= OnInteractionCompleted;
+    }
+
+    private void SubscribeToHandController()
+    {
+        if (handController == null)
+        {
+            Debug.LogError(
+                "InteractionSequenceController has no HandController reference.",
+                this);
+            return;
+        }
+
+        handController.InteractionCompleted -= OnInteractionCompleted;
+
+        handController.InteractionCompleted += OnInteractionCompleted;
+
+        Debug.Log(
+            $"InteractionSequenceController subscribed to {handController.name}.",
+            this);
     }
 
     private void OnInteractionCompleted(InteractionCompletedEvent interactionEvent)

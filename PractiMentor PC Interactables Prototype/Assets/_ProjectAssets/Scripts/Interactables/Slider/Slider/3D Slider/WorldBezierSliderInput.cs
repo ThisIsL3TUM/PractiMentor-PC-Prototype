@@ -26,6 +26,7 @@ public class WorldBezierSliderInput : SliderInputBase
 
     private float normalizedValue = 1f;
     private bool isDragging;
+    private bool automaticResetEnabled = true;
 
     private Transform followTarget;
 
@@ -141,6 +142,9 @@ public class WorldBezierSliderInput : SliderInputBase
     }
     private void ScheduleReset()
     {
+        if (!automaticResetEnabled)
+            return;
+
         resetTween?.Kill();
 
         resetTween = DOTween.To(() => normalizedValue, SetValue, 1f, resetDuration).SetDelay(resetDelay).SetEase(Ease.InOutCirc).OnComplete(() => resetTween = null);
@@ -198,6 +202,16 @@ public class WorldBezierSliderInput : SliderInputBase
     {
         followTarget = target;
         UpdateFollowPosition();
+    }
+    public override void SetAutomaticResetEnabled(bool enabled)
+    {
+        automaticResetEnabled = enabled;
+
+        if (!enabled)
+        {
+            resetTween?.Kill();
+            resetTween = null;
+        }
     }
     private void LateUpdate()
     {
