@@ -15,6 +15,11 @@ public class SocketInteractionHandler : MonoBehaviour
 
     private Camera playerCamera;
 
+    private int completedSocketActions;
+    private Grabbable activeSocketGrabbable;
+    private bool completingSocketAction;
+    private bool restoringBetweenSocketActions;
+
     public bool IsHandlingRotation => socketRotationMode;
 
     private void Awake()
@@ -55,10 +60,15 @@ public class SocketInteractionHandler : MonoBehaviour
         {
             handController.ReportInteractionCompleted(new InteractionCompletedEvent(InteractionType.ObjectPlaced, placedObject, socket.gameObject));
             CoffeeTool tool = placedObject.GetComponentInParent<CoffeeTool>();
-            
+
             if (tool != null && tool.ToolType == CoffeeToolType.Portafilter)
             {
-                BeginSocketRotation(socket, placedObject);
+                Grabbable grabbable = placedObject.GetComponentInParent<Grabbable>() ?? placedObject.GetComponentInChildren<Grabbable>();
+
+                if (grabbable != null && grabbable.HasInteractableAction)
+                {
+                    BeginSocketRotation(socket, placedObject);
+                }
             }
 
             if (tool != null && tool.ToolType == CoffeeToolType.Mug)
@@ -77,6 +87,16 @@ public class SocketInteractionHandler : MonoBehaviour
             Debug.LogWarning("Socket rotation requested for a non-portafilter.");
             return;
         }
+
+        Grabbable grabbable = placedObject.GetComponentInParent<Grabbable>() ?? placedObject.GetComponentInChildren<Grabbable>();
+
+        if (grabbable == null || !grabbable.HasInteractableAction)
+        {
+            Debug.Log("Portafilter has no interactable action.");
+            return;
+        }
+
+        activeSocketGrabbable = grabbable;
 
         activeRotationSocket = socket;
         activeSocketObject = placedObject;
@@ -105,6 +125,10 @@ public class SocketInteractionHandler : MonoBehaviour
 
         sliderController.SetTarget(sliderTarget);
         sliderController.SetVisible(true);
+
+        completedSocketActions = 0;
+        completingSocketAction = false;
+        restoringBetweenSocketActions = false;
     }
     private void UpdateSocketRotationSlider()
     {
@@ -196,20 +220,20 @@ public class SocketInteractionHandler : MonoBehaviour
     }
     private void OnSliderTargetReached()
     {
-        if (!socketRotationMode)
+        if (!socketRotationMode || completingSocketAction || restoringBetweenSocketActions)
             return;
+
+        completingSocketAction = true;
 
         Grabbable grabbable = GetActiveGrabbable();
 
-        if (grabbable != null &&
-            grabbable.IsInteractionTimed)
+        if (grabbable != null && grabbable.IsInteractionTimed)
         {
             StartCoroutine(HoldSocketRotation(grabbable.TimeAmount));
-
             return;
         }
 
-        CompleteSocketRotation();
+        CompleteSocketAction();
     }
     private IEnumerator HoldSocketRotation(float duration)
     {
@@ -217,23 +241,22 @@ public class SocketInteractionHandler : MonoBehaviour
 
         while (elapsed < duration)
         {
-            if (sliderController == null ||
-                !sliderController.IsPointerHeld ||
-                !sliderController.IsTargetReached)
+            if (sliderController == null || !sliderController.IsPointerHeld || !sliderController.IsTargetReached)
             {
                 sliderController?.ResetTimedProgress();
+                completingSocketAction = false;
                 yield break;
             }
 
             elapsed += Time.deltaTime;
 
-            sliderController.SetTimedProgress(
-                Mathf.Clamp01(elapsed / duration));
+            sliderController.SetTimedProgress(Mathf.Clamp01(elapsed / duration));
 
             yield return null;
         }
 
-        CompleteSocketRotation();
+        sliderController?.ResetTimedProgress();
+        CompleteSocketAction();
     }
     private Grabbable GetActiveGrabbable()
     {
@@ -248,5 +271,69 @@ public class SocketInteractionHandler : MonoBehaviour
                 activeSocketObject.GetComponentInChildren<Grabbable>();
 
         return grabbable;
+    }
+    private void CompleteSocketAction()
+    {
+        if (activeSocketGrabbable == null)
+        {
+            CompleteSocketRotation();
+            return;
+        }
+
+        completedSocketActions++;
+
+        bool needsAnotherAction = activeSocketGrabbable.HasInteractableMoreAction && completedSocketActions < activeSocketGrabbable.ActionCount;
+
+        if (needsAnotherAction)
+        {
+            StartCoroutine(PrepareNextSocketAction());
+        }
+        else
+        {
+            CompleteSocketRotation();
+        }
+    }
+    private IEnumerator PrepareNextSocketAction()
+    {
+        while (sliderController != null && sliderController.IsPointerHeld)
+        {
+            yield return null;
+        }
+
+        float delay = activeSocketGrabbable != null
+            ? activeSocketGrabbable.DelayBetweenSliderAction
+            : 0f;
+
+        if (delay > 0f)
+            yield return new WaitForSeconds(delay);
+
+        restoringBetweenSocketActions = true;
+
+        Tween restoreTween = sliderController.RestoreStartingTransform();
+
+        sliderController.ClearTarget();
+        sliderController.SetVisible(false);
+
+        if (restoreTween != null)
+            yield return restoreTween.WaitForCompletion();
+
+        SliderTarget target = activeSocketObject.GetComponentInChildren<SliderTarget>();
+
+        if (target == null)
+        {
+            CompleteSocketRotation();
+            yield break;
+        }
+
+        sliderController.RearmTarget(target);
+        sliderController.SetAutomaticResetEnabled(false);
+
+        if (target.Representation == SliderTarget.SliderRepresentation._3D)
+            sliderController.FollowWorldTarget(target.SliderAnchor);
+
+        sliderController.SetVisible(true);
+
+        restoringBetweenSocketActions = false;
+        completingSocketAction = false;
     }
 }

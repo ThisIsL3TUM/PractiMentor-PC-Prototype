@@ -11381,7 +11381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abff2c65f4077014fb351b5aebaa761e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionSequenceController
-  currentStep: 0
+  currentStep: 2
   handController: {fileID: 2027579907}
 --- !u!4 &1830249862
 Transform:
@@ -12617,8 +12617,6 @@ MonoBehaviour:
   handController: {fileID: 2027579907}
   sliderInteractionHandler: {fileID: 2027579908}
   socketInteractionHandler: {fileID: 2027579909}
-  sliderController: {fileID: 1135071518}
-  delayBetweenSliderActions: 0.3
   sequenceController: {fileID: 1830249861}
   interactableRange: 15
   drinkMug: {fileID: 4426748852440377281}
@@ -12789,7 +12787,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: isInteractionTimed
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: hasInteractableAction
@@ -12797,7 +12795,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8128342403905987991, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: hasInteractableMoreAction
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8468029383607143250, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_Mesh
@@ -12883,6 +12881,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1148062076}
+    - target: {fileID: 3298372407693690194, guid: 326d11735d089334aa909b5784faffb8, type: 3}
+      propertyPath: representation
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4137501506890557174, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_Mesh
       value: 
