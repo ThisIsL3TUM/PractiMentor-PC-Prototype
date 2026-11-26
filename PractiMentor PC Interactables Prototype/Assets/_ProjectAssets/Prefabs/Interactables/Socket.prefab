@@ -418,3 +418,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Socket
   socketBehaviour: 0
   placementPoint: {fileID: 0}
+  finalRotationPoint: {fileID: 0}
+  acceptedToolTypes: 

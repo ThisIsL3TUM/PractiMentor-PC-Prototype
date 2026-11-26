@@ -7,6 +7,7 @@ public class SocketInteractionHandler : MonoBehaviour
     [SerializeField] private HandController handController;
     [SerializeField] private Player playerController;
     [SerializeField] private SliderInteractionController sliderController;
+    [SerializeField] private StringBehaviour stringBehaviour;
     public Socket MugSocket { get; private set; }
 
     private Socket activeRotationSocket;
@@ -56,9 +57,14 @@ public class SocketInteractionHandler : MonoBehaviour
         if (heldObject == null)
             return false;
 
-        return handController.TryPlaceHeldObject(hand, placementPoint, placedObject =>
+        stringBehaviour?.BeginSocketPlacement(heldObject);
+
+        bool placementStarted = handController.TryPlaceHeldObject(hand, placementPoint, placedObject =>
         {
+            stringBehaviour?.ConfirmSocketConnection(placedObject);
+
             handController.ReportInteractionCompleted(new InteractionCompletedEvent(InteractionType.ObjectPlaced, placedObject, socket.gameObject));
+
             CoffeeTool tool = placedObject.GetComponentInParent<CoffeeTool>();
 
             if (tool != null && tool.ToolType == CoffeeToolType.Portafilter)
@@ -76,6 +82,13 @@ public class SocketInteractionHandler : MonoBehaviour
                 MugSocket = socket;
             }
         });
+
+        if (!placementStarted)
+        {
+            stringBehaviour?.CancelSocketPlacement();
+        }
+
+        return placementStarted;
     }
 
     private void BeginSocketRotation(Socket socket, GameObject placedObject)

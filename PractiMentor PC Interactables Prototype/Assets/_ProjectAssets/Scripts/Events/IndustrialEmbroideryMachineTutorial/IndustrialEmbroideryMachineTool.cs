@@ -3,6 +3,7 @@ using UnityEngine;
 public enum EmbroideryMachinePartType
 {
     Spool,
+    StringEdge,
     Knob,
     MachineHead,
     SpringLever,

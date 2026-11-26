@@ -21,6 +21,7 @@ public class Socket : MonoBehaviour
 
     [Header("Compatibility")]
     [SerializeField] private CoffeeToolType[] acceptedToolTypes;
+    [SerializeField] private EmbroideryMachinePartType[] acceptedPartTypes;
 
     public Transform PlacementPoint => placementPoint;
     public Transform FinalRotationPoint => finalRotationPoint;
@@ -31,12 +32,21 @@ public class Socket : MonoBehaviour
         if (socketBehaviour != SocketStateType.Free || item == null)
             return false;
 
-        CoffeeTool tool = item.GetComponentInParent<CoffeeTool>();
+        CoffeeTool coffeeTool = item.GetComponentInParent<CoffeeTool>();
 
-        if (tool == null) 
-            return false;
+        if (coffeeTool != null)
+        {
+            return acceptedToolTypes != null && Array.IndexOf(acceptedToolTypes, coffeeTool.ToolType) >= 0;
+        }
 
-        return Array.IndexOf(acceptedToolTypes, tool.ToolType) >= 0;
+        IndustrialEmbroideryMachineTool machinePart = item.GetComponentInParent<IndustrialEmbroideryMachineTool>();
+
+        if (machinePart != null)
+        {
+            return acceptedPartTypes != null && Array.IndexOf(acceptedPartTypes, machinePart.PartType) >= 0;
+        }
+
+        return false;
     }
     //function to put object in socket
     public bool TryOccupySocket(GameObject item, out Transform target)

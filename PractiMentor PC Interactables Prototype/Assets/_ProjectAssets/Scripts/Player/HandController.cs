@@ -295,4 +295,19 @@ public class HandController : MonoBehaviour
     {
         InteractionCompleted?.Invoke(interactionEvent);
     }
+
+    public GameObject DetachHeldObject(Hand hand)
+    {
+        GameObject heldObject = GetHeldObject(hand);
+
+        if (heldObject == null) 
+            return null;
+
+        SetHeldObject(hand, null);
+
+        IgnorePlayerCollision(heldObject, false);
+        heldObject.layer = 0;
+
+        return heldObject;
+    }
 }

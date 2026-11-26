@@ -12674,6 +12674,7 @@ MonoBehaviour:
   handController: {fileID: 2027579907}
   playerController: {fileID: 2027579905}
   sliderController: {fileID: 1135071518}
+  stringBehaviour: {fileID: 0}
 --- !u!1 &2143557125
 GameObject:
   m_ObjectHideFlags: 0
@@ -12803,7 +12804,7 @@ PrefabInstance:
       objectReference: {fileID: 228944633}
     - target: {fileID: 8468029383607143250, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 5683
+      value: 5686
       objectReference: {fileID: 0}
     - target: {fileID: 8698190597907957419, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12855,7 +12856,7 @@ PrefabInstance:
       objectReference: {fileID: 467754699}
     - target: {fileID: 8893865798758973246, guid: de27794dd6601614f9cf69a61a55b239, type: 3}
       propertyPath: m_VersionIndex
-      value: 444
+      value: 447
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12899,7 +12900,7 @@ PrefabInstance:
       objectReference: {fileID: 1148062076}
     - target: {fileID: 6644898340073661556, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 510
+      value: 513
       objectReference: {fileID: 0}
     - target: {fileID: 8272717552122999782, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12947,7 +12948,7 @@ PrefabInstance:
       objectReference: {fileID: 536027546}
     - target: {fileID: 8385341091578498490, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_VersionIndex
-      value: 1795
+      value: 1798
       objectReference: {fileID: 0}
     - target: {fileID: 8497993741660236740, guid: 326d11735d089334aa909b5784faffb8, type: 3}
       propertyPath: m_Mesh
@@ -13044,7 +13045,7 @@ PrefabInstance:
       objectReference: {fileID: 1344941322}
     - target: {fileID: 6047656268235146832, guid: 39fbd8eb3f4fc2443b74fe7283895124, type: 3}
       propertyPath: m_VersionIndex
-      value: 365
+      value: 368
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13157,6 +13158,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 739718083}
+    - target: {fileID: 5428843088392184375, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
+      propertyPath: completionBehavior
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6639623378294422475, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1
@@ -13203,7 +13208,7 @@ PrefabInstance:
       objectReference: {fileID: 739718083}
     - target: {fileID: 8750285503508619209, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: m_VersionIndex
-      value: 435
+      value: 438
       objectReference: {fileID: 0}
     - target: {fileID: 8842270930932932936, guid: 5338ba2aafb6ae14b8565bb9e8af6241, type: 3}
       propertyPath: isInteractionTimed

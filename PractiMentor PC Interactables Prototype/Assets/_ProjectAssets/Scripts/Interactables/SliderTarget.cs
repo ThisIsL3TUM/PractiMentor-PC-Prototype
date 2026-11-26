@@ -18,6 +18,12 @@ public class SliderTarget : MonoBehaviour
         X, Y, Z
     }
 
+    public enum CompletionBehavior
+    {
+        ReturnToHand,
+        LeaveAtSliderPosition
+    }
+
     //SLIDER DIMENSION
     [Header("Slider Dimension")]
     [SerializeField] SliderRepresentation representation = SliderRepresentation._2D;
@@ -41,6 +47,9 @@ public class SliderTarget : MonoBehaviour
     [Header("Slider Display")]
     [SerializeField] private Transform sliderAnchor;
 
+    [Header("Completion")]
+    [SerializeField] private CompletionBehavior completionBehavior = CompletionBehavior.ReturnToHand;
+
     public SliderRepresentation Representation => representation;
     public TransformProperty Property => property;
     public Axis TransformAxis => axis;
@@ -53,4 +62,5 @@ public class SliderTarget : MonoBehaviour
     public Transform SliderAnchor => sliderAnchor != null
         ? sliderAnchor
         : transform;
+    public CompletionBehavior CompletionMode => completionBehavior;
 }

@@ -302,6 +302,23 @@ public class SliderInteractionHandler : MonoBehaviour
             sliderController.RestoreStartingTransform();
         }
 
+        bool leaveAtSliderPosition = ShouldLeaveAtSliderPosition();
+
+        if (leaveAtSliderPosition)
+        {
+            handController.DetachHeldObject(HandController.Hand.Right);
+            handController.DetachHeldObject(HandController.Hand.Left);
+
+            sliderController?.ClearTarget();
+            sliderController?.ResetTimedProgress();
+            sliderController?.SetVisible(false);
+
+            playerController?.SetPlayerState(Player.PlayerMode.Navigate);
+
+            restoringSliderTarget = false;
+            return;
+        }
+
         sliderController?.ClearTarget();
         sliderController?.ResetTimedProgress();
         sliderController?.SetVisible(false);
@@ -485,5 +502,12 @@ public class SliderInteractionHandler : MonoBehaviour
         }
 
         return heldObject.transform;
+    }
+
+    private bool ShouldLeaveAtSliderPosition()
+    {
+        SliderTarget target = GetSliderTarget(handController.HeldRight);
+
+        return target != null && target.CompletionMode == SliderTarget.CompletionBehavior.LeaveAtSliderPosition;
     }
 }
