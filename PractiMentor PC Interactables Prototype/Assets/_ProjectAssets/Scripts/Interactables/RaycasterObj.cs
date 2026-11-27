@@ -131,6 +131,14 @@ public class RaycasterObj : MonoBehaviour
                 {
                     GameObject clickedRoot = GetGrabbableRoot(hit.transform.gameObject);
 
+                    StringBehaviour stringBehaviour = clickedRoot.GetComponentInParent<StringBehaviour>();
+
+                    if (stringBehaviour != null && !stringBehaviour.ReleaseFromSocket())
+                    {
+                        Debug.LogWarning("The string could not be released from its socket.", clickedRoot);
+                        return;   
+                    }
+
                     bool isDrinkMug = sequenceController != null && sequenceController.CurrentStep == InteractionSequenceController.Step.DrinkCoffee && clickedRoot == drinkMug;
 
                     if (isDrinkMug)

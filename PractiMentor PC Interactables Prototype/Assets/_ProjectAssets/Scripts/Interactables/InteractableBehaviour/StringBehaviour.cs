@@ -3,6 +3,14 @@ using UnityEngine;
 
 public class StringBehaviour : MonoBehaviour
 {
+    public enum StringState
+    {
+        Held,
+        BeingPlaced,
+        AtCheckpoint,
+        Connected
+    }
+
     [Header("References")]
     [SerializeField] private HandController handController;
     [SerializeField] private GameObject stringEdge;
@@ -14,8 +22,28 @@ public class StringBehaviour : MonoBehaviour
     [SerializeField] private bool showLineWhenNotHeld = false;
     [SerializeField] private float anchorOffset = 0.005f;
 
+    [Header("Checkpoint Behaviour")]
+    [SerializeField] private StringState state;
+    [SerializeField] private Transform currentCheckpoint;
+
+    public bool IsPlaced => state == StringState.AtCheckpoint || state == StringState.Connected;
+
     private bool isBeingPlaced;
     private bool isConnectedToSocket;
+
+    private Socket connectedSocket;
+
+    public void PlaceAtCheckpoint(Transform checkpoint)
+    {
+        if (checkpoint == null)
+            return;
+
+        currentCheckpoint = checkpoint;
+        state = StringState.AtCheckpoint;
+
+        isBeingPlaced = false;
+        isConnectedToSocket = false;
+    }
 
     private void Awake()
     {
@@ -66,6 +94,15 @@ public class StringBehaviour : MonoBehaviour
 
     private void OnInteractionCompleted(InteractionCompletedEvent interactionEvent)
     {
+        if (interactionEvent.Type == InteractionType.SliderCompleted)
+        {
+            if (interactionEvent.PrimaryObject != stringEdge)
+                return;
+
+            PlaceAtCheckpoint(currentCheckpoint);
+            return;
+        }
+
         if (interactionEvent.Type != InteractionType.ObjectPlaced)
             return;
 
@@ -75,11 +112,14 @@ public class StringBehaviour : MonoBehaviour
         if (interactionEvent.SecondaryObject == null)
             return;
 
-        Socket socket =
-            interactionEvent.SecondaryObject.GetComponent<Socket>();
+        Socket socket = interactionEvent.SecondaryObject.GetComponent<Socket>();
 
         if (socket != null)
+        {
+            connectedSocket = socket;
+            state = StringState.Connected;
             isConnectedToSocket = true;
+        }
     }
 
     public void BeginSocketPlacement(GameObject objectBeingPlaced)
@@ -93,6 +133,7 @@ public class StringBehaviour : MonoBehaviour
         if (objectBeingPlaced != stringEdge)
             return;
 
+        state = StringState.Connected;
         isBeingPlaced = false;
         isConnectedToSocket = true;
     }
@@ -100,5 +141,32 @@ public class StringBehaviour : MonoBehaviour
     public void CancelSocketPlacement()
     {
         isBeingPlaced = false;
+    }
+
+    public void BeginCheckpointPlacement(Transform checkpoint)
+    {
+        if (checkpoint == null)
+            return;
+
+        currentCheckpoint = checkpoint;
+        state = StringState.BeingPlaced;
+        isBeingPlaced = true;
+    }
+
+    public bool ReleaseFromSocket()
+    {
+        if (connectedSocket == null)
+            return true;
+
+        bool released = connectedSocket.ReleaseObject(stringEdge);
+
+        if (!released)
+            return false;
+
+        connectedSocket = null;
+        isConnectedToSocket = false;
+        state = StringState.Held;
+
+        return true;
     }
 }

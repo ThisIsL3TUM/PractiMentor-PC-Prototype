@@ -29,6 +29,8 @@ public class HandController : MonoBehaviour
     private Collider playerCollider;
     private int holdLayer;
     private bool movingFromSocket;
+    private int interactableLayer;
+
 
     private int activePickupAnimations;
 
@@ -59,6 +61,7 @@ public class HandController : MonoBehaviour
 
         playerCollider = player.GetComponent<Collider>();
         holdLayer = LayerMask.NameToLayer(holdLayerName);
+        interactableLayer = LayerMask.NameToLayer("Interactables");
 
         if (holdLayer == -1)
             Debug.LogError($"Layer '{holdLayerName}' does not exist.", this);
@@ -68,6 +71,9 @@ public class HandController : MonoBehaviour
 
         if (holdPosL == null)
             Debug.LogError("Left-hand hold position is missing.", this);
+
+        if (interactableLayer == -1)
+            Debug.LogError("Layer 'Interactables' does not exist.", this);
     }
     public GameObject GetHeldObject(Hand hand)
     {
@@ -129,7 +135,9 @@ public class HandController : MonoBehaviour
 
         IgnorePlayerCollision(heldObject, false);
 
-        heldObject.layer = 0;
+        if (interactableLayer != -1)
+            heldObject.layer = interactableLayer;
+
         SetHeldObject(hand, null);
 
         Sequence placementSequence = DOTween.Sequence();
@@ -306,7 +314,9 @@ public class HandController : MonoBehaviour
         SetHeldObject(hand, null);
 
         IgnorePlayerCollision(heldObject, false);
-        heldObject.layer = 0;
+
+        if (interactableLayer != -1)
+            heldObject.layer = interactableLayer;
 
         return heldObject;
     }
